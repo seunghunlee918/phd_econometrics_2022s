@@ -1,1 +1,1 @@
-# phd_econometrics_2022s
+# Introduction to Econometrics 2 (Spring 2022)
