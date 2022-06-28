@@ -1,0 +1,526 @@
+\documentclass[aspectratio=169]{beamer}
+
+\mode<presentation>
+\usetheme{Boadilla}
+\definecolor{redback}{RGB}{140,0,0}
+\definecolor{blue}{RGB}{30,90,205}
+\definecolor{red}{RGB}{213,94,0}
+\definecolor{green}{RGB}{0,128,0}
+\setbeamercolor{title}{fg=redback}
+\setbeamercolor{frametitle}{fg=redback}
+\setbeamercolor{block title}{bg=redback, fg=white}
+\setbeamercolor{block body}{bg=white}
+\setbeamercolor{structure}{fg=redback}
+\setbeamercolor{item projected}{fg=white}
+\setbeamercolor{item}{fg=redback}
+\setbeamercolor{subitem}{fg=redback}
+\setbeamercolor{section in toc}{fg=redback}
+\setbeamercolor{description item}{fg=redback}
+\setbeamercolor{caption name}{fg=redback}
+\setbeamercolor{button}{bg=redback, fg=white}
+\setbeamercolor{caption name}{fg=redback}
+\usepackage{graphics}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usepackage{bbm}
+\usetikzlibrary{decorations.pathreplacing}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{multirow, makecell}
+\usepackage{float}
+\usepackage{fancyvrb}
+\usepackage{kotex}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{adjustbox}
+\usepackage{hyperref}
+\usepackage{threeparttable}
+\usepackage[scaled=0.92]{helvet}
+\usepackage[default]{lato} %If I want a twist
+\newenvironment{wideitemize}{\itemize\addtolength{\itemsep}{10pt}}{\enditemize}
+\newenvironment{wideenumerate}{\enumerate\addtolength{\itemsep}{10pt}}{\endenumerate}
+\newenvironment{widedescription}{\description\addtolength{\itemsep}{10pt}}{\enddescription}
+\hypersetup{
+colorlinks=true,
+linkcolor=redback,
+filecolor=green, 
+urlcolor=blue,
+}
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{author in head/foot}{bg=white, fg=redback}
+\setbeamercolor{title in head/foot}{bg=white, fg=redback}
+\setbeamercolor{date in head/foot}{bg=white, fg=redback}
+\setbeamercolor{section in head/foot}{bg=white, fg=redback}
+\setbeamercolor{page number in head/foot}{bg=white, fg=redback}
+\setbeamercolor{headline}{bg=redback}
+\setbeamertemplate{footline}{
+    \leavevmode%
+    \hbox{%
+        \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{date in head/foot}%
+            \usebeamerfont{date in head/foot}\insertshortdate
+        \end{beamercolorbox}%
+        \begin{beamercolorbox}[wd=.444444\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+            \usebeamerfont{title in head/foot}\insertshorttitle
+        \end{beamercolorbox}%
+        \begin{beamercolorbox}[wd=.222222\paperwidth,ht=2.25ex,dp=1ex,center]{page number in head/foot}%
+            \usebeamerfont{page number in head/foot} \insertframenumber{} / \inserttotalframenumber
+        \end{beamercolorbox}}%
+        \vskip0pt%
+    }
+
+\setbeamertemplate{section in toc}[sections numbered]
+\setbeamertemplate{subsection in toc}{\leavevmode\leftskip=3em\rlap{\hskip-1.75em\inserttocsectionnumber.\inserttocsubsectionnumber}\inserttocsubsection\par}
+\setbeamerfont{subsection in toc}{size=\footnotesize}
+
+\newenvironment{transitionframe}{\setbeamercolor{background canvas}{bg=redback}\setbeamertemplate{footline}{} \begin{frame}}{\end{frame}}
+\newcommand{\ROM}[1]
+    {\MakeUppercase{\romannumeral #1}}
+    \DeclareMathOperator*{\plim}{plim}
+\makeatletter
+\let\@@magyar@captionfix\relax
+\makeatother
+
+
+\title[Recitation 7 (Intro to Econometrics \ROM{2})]{Recitation 7: Fixed effects and Dynamic panels} % Change this regularly
+\author[]{Seung-hun Lee }
+\institute[]{Columbia University \\ Introduction to Econometrics \ROM{2} Recitation}
+
+\date[March 7th, 2022]{March 7th, 2022}
+
+\begin{document}
+\begin{frame}
+\titlepage
+\end{frame}
+
+
+%%% Color slides for section headers: Use for colloquium version (The ones bewteen \iffals and \fi)
+
+\begin{transitionframe}
+  \begin{center}
+         { \Huge \textcolor{white}{Fixed effects regression}}
+       \end{center}
+\end{transitionframe}
+
+\begin{frame}
+\frametitle{Fixed effects: Omitting $c_i$ induces OVB}
+\begin{itemize}
+\item The unobserved fixed effect $c_i$ is correlated with $x_{it}$.
+\[
+y_{it}=x_{it}'\beta+ c_i + e_{it}
+\]
+\item POLS and RE no longer consistent: Relied on the fact that $c_i$ is uncorrelated with $x_{it}$
+\item Therefore, it is essential that we minimize the role of $c_i$ in the above equation in order to get the consistent estimation. $\to$ we do that by purging it using transformations
+\item There are three ways to approach fixed effects estimation 
+\begin{itemize}
+\item Within estimation (WE)
+\item Least square dummy variables (LSDV)
+\item First difference (FD)
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{WE weeds out $c_i$ with demeaning!}
+\begin{itemize}
+\item Write $\bar{y}_i =\frac{1}{T}\sum_{t=1}^T y_{it}$ and similarly for other variables to get $\bar{y}_i = \bar{x}_i'\beta + c_i+\bar{e}_i$
+\item Even if $y_i$ is average across time, we still get $c_i$ itself
+\item Subtract the cross-sectional equation from the original data generating process to get
+\[
+\ddot{y}_{it}= \ddot{x}_{it}'\beta+\ddot{e}_{it}, \ \ (i=1,..,n, \ \text{and } t=1,..,T)
+\]
+where $\ddot{y}_{it}=y_{it}-\bar{y}_i$
+\item The within estimator is obtained by taking an OLS to above equation
+\[
+\begin{aligned}
+\hat{\beta}_{WE}&=\left(\sum_{i=1}^n\sum_{t=1}^T \ddot{x}_{it}\ddot{x}_{it}'\right)^{-1}\sum_{i=1}^n\sum_{t=1}^T \ddot{x}_{it}\ddot{y}_{it}=\left(\sum_{i=1}^n\ddot{X}_{i}'\ddot{X}_{i}\right)^{-1}\sum_{i=1}^n\ddot{X}_{i}'\ddot{y}_{i}\\
+\end{aligned}
+\]
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{WE leads to consistent estimates}
+\begin{block}{FE assumptions}
+\begin{itemize}
+\item[FE1] We assume strict exogeneity $E[e_{it}|X_i,c_i]=0$
+\item[FE2] $\text{rank}\left(E [\ddot{X}_i' \ddot{X}_i]\right)=\text{rank}\left(\sum_{t=1}^T E [\ddot{x}_{it}' \ddot{x}_{it}]\right)=k$ (full column rank)
+\item[FE3] Conditionally spherical variance matrix: $E[e_ie_i'|X_i,c_i]=\sigma_e^2 I_T$
+\end{itemize}
+\end{block}
+\begin{itemize}
+\item  We rewrite the WE estimator os 
+\[
+\hat{\beta}_{WE}-\beta=\left(\sum_{i=1}^n\sum_{t=1}^T \ddot{x}_{it}\ddot{x}_{it}'\right)^{-1}\sum_{i=1}^n\sum_{t=1}^T \ddot{x}_{it}\ddot{e}_{it}
+\]
+\item $E[\ddot{x}_{it}\ddot{e}_{it}]=E[x_{it}e_{it}]-E[x_{it}\bar{e}_i]-E[\bar{x}_ie_{it}]+E[\bar{x}_i\bar{e}_i]$
+\item Since $\bar{x}_i, \bar{e}_i$ incorporates regressors and errors from all time periods, applying strict exogeneity (and strict exogeneity only) reduces the above equation to 0
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Asymptotic distribution of WE}
+\begin{itemize}
+\item Variance-covariance of $\ddot{e}_{it}$ is
+\[
+\begin{aligned}
+E[\ddot{e}_{it}^2]&=E[(e_{it}-\bar{e}_i)^2]=E[e_{it}^2]-2E[e_{it}\bar{e}_i]+E[\bar{e}_i^2]\\
+&=\sigma_e^2-\frac{2}{T}\sigma_e^2+\frac{1}{T}\sigma_e^2=\sigma_e^2\left(1-\frac{1}{T}\right)\\
+E[\ddot{e}_{it}\ddot{e}_{is}]&=E[(e_{it}-\bar{e}_i)(e_{is}-\bar{e}_i)]=E[e_{it}e_{is}]-E[e_{it}\bar{e}_i]-E[e_{is}\bar{e}_i]+E[\bar{e}_i^2]\\
+&=0-\frac{1}{T}\sigma_e^2-\frac{1}{T}\sigma_e^2+\frac{1}{T}\sigma_e^2=-\frac{1}{T}\sigma_e^2\\
+\end{aligned}
+\]
+\item So $\ddot{e}_{it}$ is conditionally homoskedastic and have negative serial correlation (minor problem due to nature of demeaning, Wooldridge 2010)
+\item  The asymptotic distribution of the WE estimator is
+\[
+\sqrt{n}(\hat{\beta}_{WE}-\beta)\sim N(0,E[\ddot{X}_i'\ddot{X}_i]^{-1}E[\ddot{X}_i'e_{i}e_{i}'\ddot{X}_i]E[\ddot{X}_i'\ddot{X}_i]^{-1})
+\]
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Asymptotic variance estimate of WE}
+\begin{itemize}
+\item If we impose \textbf{FE3}. Then the asymptotic variance is $\sigma_e^2E[\ddot{X}_i'\ddot{X}_i]^{-1}$.
+\item The estimator of the asymptotic variance would be $\widehat{\sigma}_e^2\left(n^{-1}\sum_{i=1}^n \ddot{X}_i'\ddot{X}_i\right)^{-1}$. 
+\item To obtain $\widehat{\sigma}_e^2$, we start from our previous finding that $E[\ddot{e}_{it}^2]=\frac{T-1}{T}\sigma_e^2$. This implies that
+\[
+\frac{1}{n(T-1)}\sum_{i=1}^n\sum_{t=1}^TE[\ddot{e}_{it}^2]=\sigma_e^2
+\]
+\item Then, we apply the (small-sample) correction by subtracting for $k$ regressors. Thus, the estimate of $\sigma_e^2$ is
+\[
+\widehat{\sigma}_e^2= \frac{1}{n(T-1)-k}\sum_{i=1}^n\sum_{t=1}^T\widehat{\ddot{e}}_{it}
+\]
+where $\widehat{\ddot{e}}_{it}$ is obtained from the OLS residual of the demeaned data generating process. 
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Matrix notation for WE}
+\begin{itemize}
+\item  Stack up the each observation: $y_i = X_i\beta+ 1_Tc_i + e_i$
+\item Define $Q_T\equiv I_T-1_T(1_T'1_T)^{-1}1_T'$, where $(1_T'1_T)^{-1}=T^{-1}$ and $1_T1_T'$ is the $T$-dimensional square matrix of 1's as elements. (Symmetric and idempotent!)
+\item Now, premultiply $Q_T$ to the indivudually-stacked data generating process to get $Q_Ty_i = Q_TX_i\beta+ Q_T1_Tc_i + Q_Te_i$
+\item A key feature is that $Q_T1_T = 0$ and $Q_Ty_i = \ddot{y}_i$. The latter is because
+\[
+Q_T{y}_i={y}_i-\frac{1}{T}\begin{pmatrix} 1 & 1& ...& 1 \\ ... & ...& ...& ... \\1 & 1& ...& 1  \end{pmatrix}\underbrace{\begin{pmatrix}y_{i1}\\ y_{i2}\\ .... \\y_{iT}\end{pmatrix}}_{y_i}={y}_i-\frac{1}{T}\begin{pmatrix}\sum_t y_{it}\\ ...\\\sum_t y_{it}\end{pmatrix}=\begin{pmatrix}y_{i1}-\frac{1}{T}\sum_t y_{it}\\ ... \\y_{iT}-\frac{1}{T}\sum_t y_{it}\end{pmatrix}={\ddot{y}}_i
+\]
+\item Thus,  $ \hat{\beta}_{WE}=\left(\sum_{i=1}^n{X}_i'Q_T{X}_i\right)^{-1}\sum_{i=1}^n{X}_i'Q_T{y}_i$
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{LSDV: Panel is OLS + many dummy variables}
+\begin{itemize}
+\item Consider $c_i$ as a parameter to be estimated for each $i$ (each $i$ has distinct intercept)
+\item $Dk_i=1$ if  $i=k$th individual (0 otherwise) $\to$ Total of $N-1$ of such dummy variables 
+\[
+y_{it}=x_{it}'\beta + D1_ic_1+...+D(n-1)_ic_{n-1}+u_{it} 
+\]
+\item Or stack observations for all population: Get $y, X, e$ 
+\begin{itemize}
+\item Let $c_i$ vary across $i$ using Kroenecker product $(I_n \otimes 1_T)c=
+\begin{pmatrix}1_T &...& 0 \\ ... &...&...\\ 0&...& 1_T \end{pmatrix}\begin{pmatrix}c_1\\ ...\\ c_n \end{pmatrix}=(I_n\otimes 1_T)c\in\mathbb{R}^{nT\times n}\times \mathbb{R}^{n\times 1}=\mathbb{R}^{nT\times 1}
+$
+\item Combine what we know to get 
+\[
+{y} = {X}\beta+(\underbrace{I_n\otimes 1_T}_{=D})c+{e}
+\]
+We then use the Frisch-Waugh-Lovell theorem to get $\hat{\beta}_{LSDV}=({X}'M_D{X})^{-1}({X}'M_D{y})$
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{First-differenced models: Difference with lags to get rid of $c_i$ }
+\begin{itemize}
+\item Assume $T\geq2$. We work with
+\[
+\Delta y_{it}= \Delta x_{it}'\beta+\Delta u_{it}\ \ (i=1,...,n \ \text{and }t=2,..,T)
+\]
+where $\Delta y_{it} = y_{i,t}-y_{i,t-1}$
+\item By taking an OLS, we can obtain
+\[
+\hat{\beta}_{FD}=\left(\sum_{i=1}^n\sum_{t=2}^T \Delta x_{it}\Delta x_{it}'\right)^{-1}\sum_{i=1}^n\sum_{t=2}^T \Delta x_{it}\Delta y_{it}
+\]
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{FD is also consistent}
+\begin{block}{FD assumptions}
+\begin{itemize}
+\item[FD1] We assume strict exogeneity $E[e_{it}|X_i,c_i]=0$
+\item[FD2] $\text{rank}\left(E [\Delta X_i' \Delta X_i]\right)=\text{rank}\left(\sum_{t=2}^T E [\Delta {x}_{it} \Delta {x}_{it}']\right)=k$ (full column rank)
+\item[FD3] Conditionally spherical variance matrix: $E[\Delta e_i\Delta e_i'|X_i,c_i]=\sigma_{\Delta e}^2 I_{T-1}$
+\end{itemize}
+\end{block}
+\begin{itemize}
+\item  Write
+\[
+\hat{\beta}_{FD}-\beta =\left(\sum_{i=1}^n\sum_{t=2}^T \Delta x_{it}\Delta x_{it}'\right)^{-1}\sum_{i=1}^n\sum_{t=2}^T \Delta x_{it}\Delta e_{it}
+\]
+\item $\hat{\beta}_{FD}$ is consistent since $E[\Delta x_{it} \Delta e_{it}]=0$
+\[
+\begin{aligned}
+E[\Delta x_{it} \Delta e_{it}]&=E[ (x_{it}-x_{i,t-1})( e_{it}-e_{i,t-1})]\\
+&=E[ x_{it}e_{it}]-E[x_{it}e_{i,t-1}]-E[x_{i,t-1}e_{it}]+E[x_{i,t-1}e_{i,t-1}]\\
+&= 0-0-0+0=0
+\end{aligned}
+\] 
+ \end{itemize}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Difference between FD and WE?}
+\begin{itemize}
+\item $T$ observations for WE vs $T-1$ for FD
+\item Structure of error terms: If $e_{it}$ is free from serial correlation (or $e_t$ is an IID), then taking a FD would introduce serial correlation.
+\[
+\begin{aligned}
+cov(\Delta e_{it},\Delta e_{i,t-1})&=E[e_{it}e_{it-1}]-E[e_{it}e_{it-2}]-E[e_{it-1}e_{it-1}]+E[e_{it-1}e_{it-2}]\\
+&=0-0-var(e_{it-1})+0\neq 0 \\
+\end{aligned}
+\]
+\item If $e_t$ is autocorrelated to begin with (e.g. random walk),  
+\[
+e_{it}=e_{it-1}+\eta_{it} \ \ (E[\eta_{it}]=0, E[\eta_{it}\eta_{is}]=0 (s\neq t), var(e_{it})=\sigma^2)
+\]
+Thus, better eliminate this autocorrelation using FD
+ \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{So the point of learning all these are...?}
+\begin{itemize}
+\item We can show that for $T=2$ FD and WE are identical
+\item LSDV and WE is numberically identical
+\begin{itemize}
+\item You need to use properties of Kroenecker products
+\item With that, you can transform $\hat{\beta}_{LSDV}=({X}'M_D{X})^{-1}({X}'M_D{y})$ to $ \hat{\beta}_{WE}=\left(\sum_{i=1}^n{X}_i'Q_T{X}_i\right)^{-1}\sum_{i=1}^n{X}_i'Q_T{y}_i$
+\end{itemize}
+\item Proving equivalence of FD and WE when $T=2$ is not as hard
+\item The latter is time-consuming - take a look at my notes
+ \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Hausman - Taylor allows estimating impact of time-invariant variables}
+\begin{itemize}
+\item For all FE estimates, we cannot put time-invariant variables as controls
+\begin{itemize}
+\item Erased due to the transformation process (WE, FD) 
+\item Absorbed by a separate variable for unobserved individual effects (LSDV)
+\end{itemize}
+\item Hausman and Taylor (1981) propose an estimation approach based on method of moments that can identify the effects of the time-invariant variables
+\item The data generating process as $y_{it}=z_{i}'\gamma+x_{it}'\beta+c_i+e_{it}$
+\item Assume $E[z_ie_{it}]=0, E[x_{it}e_i]=0, E[z_ic_i]=0$, and $E[x_{it}c_i]\neq0$ 
+\item Then, we have two moment conditions that we can work with
+\[
+\begin{aligned}
+E[\ddot{x}_{it}e_{it}]&=E[\ddot{x}_{it}(y_{it}-x_{it}'\beta-z_i'\gamma)]=0\\
+E[z_{i}e_{it}]&=E[z_{i}(y_{it}-x_{it}'\beta-z_i'\gamma)]=0
+\end{aligned}
+\]
+ \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Obtaining $\gamma$ estimates!}
+\begin{itemize}
+\item IV: Valid IV for this procedure is $\ddot{x}_{it}$ and $z_i$. We can obtain $\beta$ and $\gamma$ estimates by a 2SLS procedure with $\ddot{x}_{it}$ and $z_i$ as the set of IVs.
+\item Method of moments: $\beta$ estimate is obtained with any FE methods
+\begin{itemize}
+\item From the moment condition and including $\hat{\beta}$, we get 
+\[
+z_i'(y_{it}-x_{it}'\hat{\beta}-z_i\gamma)=z_i'(\bar{y}_{i}-\bar{x}_{i}'\hat{\beta}-z_i\gamma)=0
+\]
+\item $\bar{e}_i$ can be ruled out since $E[z_{i}e_{it}]=0$
+\item Combining the information we have, we use method of moments to get
+\[
+\frac{1}{n}\sum_{i=1}^n z_i'(\bar{y}_{i}-\bar{x}_{i}'\hat{\beta}-z_i\gamma)=0 \iff \frac{1}{n}\sum_{i=1}^nz_i(\bar{y}_i-\bar{x}_i'\hat{\beta})=\frac{1}{n}\sum_{i=1}^n z_iz_i'\gamma
+\]
+\item So $\hat{\gamma}=\left(\sum_{i=1}^n z_iz_i'\right)^{-1}\left(\sum_{i=1}^nz_i (\bar{y}_i-\bar{x}_i\hat{\beta})\right)$. 
+\item In practice, this is obtained by regressing $\hat{c}_i$ on $z_i$ and thus $\hat{\gamma}=(Z'Z)^{-1} Z'\hat{c}$
+\end{itemize}
+ \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{FE vs RE? Use Hausman principles!}
+\begin{itemize}
+\item FE: always consistent, but inefficient if $E[X_i'c_i]=0$
+\item RE: consistent and efficient if $E[X_i'c_i]=0$, but otherwise inconsistent. 
+\item We create this test statistic for the null hypothesis of $H_0:E[X_i'c_i]=0$
+\[
+H\equiv (\hat{\beta}_{FE}-\hat{\beta}_{RE})'[\widehat{V}_{\beta_{FE}-\beta_{RE}}]^{-1}(\hat{\beta}_{FE}-\hat{\beta}_{RE})\sim \chi^2_{\dim{(X)}}
+\]
+where we can write $\widehat{V}_{\beta_{FE}-\beta_{RE}}=\widehat{V}_{\beta_{FE}}-\widehat{V}_{\beta_{RE}}$
+\item  If the null is not rejected, then using RE is acceptable. Otherwise, RE is inconsistent and FE should be preferred.
+ \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Generalizing the FE structure}
+\begin{itemize}
+\item We can also include unobserved time effects $\delta_t$: $y_{it} = x_{it}'\beta+ c_i + \delta_t + e_{it}$
+\item  The fixed effects estimator should get rid of both $c_i$ and $\delta_t$ using a two-step demeaning
+\item Define 
+\[
+\bar{y}_i = \frac{1}{T}\sum_{t=1}^T y_{it},\ \bar{y}_t = \frac{1}{n}\sum_{i=1}^n y_{it}, \ \bar{y}=\frac{1}{nT}\sum_{i=1}^n \sum_{t=1}^T y_{it}
+\]
+\item We take  $\tilde{y}_{it}=y_{it}-\bar{y}_i - \bar{y}_t + \bar{y}$. That is because
+\[
+\begin{aligned}
+\tilde{y}_{it}&=(\alpha_i+\gamma_t+x_{it}\beta+e_{it})-(\alpha_i+\bar{\gamma}+\bar{x}_i\beta+\bar{e}_i)-(\bar{\alpha}+\gamma_t+\bar{x}_t\beta+\bar{e}_t)+(\bar{\alpha}+\bar{\gamma}+\bar{\bar{x}}\beta+\bar{\bar{e}})\\
+&=(x_{it}-\bar{x}_i-\bar{x}_t+\bar{\bar{x}})\beta+(e_{it}-\bar{e}_i-\bar{e}_t+\bar{\bar{e}})\\
+&=\tilde{x}_{it}\beta+\tilde{e}_{it}\\
+\end{aligned}
+\]
+\item POLS on the above equation would lead to consistent estimates of $\beta$.
+ \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Interactive FE: Most saturated set of FE possible}
+\begin{itemize}
+\item $v_{it}$ can be written as $v_{it} = \lambda_i f_t  + e_t$, where $f_t$ is a vector of factors, and $\lambda_i$ is a vector of factor loadings
+\item TWFE is a special case: $\lambda_ i = \begin{pmatrix} 1 \\ c_i \end{pmatrix}$ and $f_t = \begin{pmatrix} \delta_t \\ 1 \end{pmatrix}$
+\item We can model for unobservable individual effects that may vary over time by putting a fixed effect for each individual-time level at the cost of increasing computational burden. 
+ \end{itemize}
+\end{frame}
+
+\begin{transitionframe}
+  \begin{center}
+         { \Huge \textcolor{white}{Dynamic panel models}}
+       \end{center}
+\end{transitionframe}
+
+\begin{frame}
+\frametitle{DPD: None of the static panel methods lead to consistent estimates!}
+\begin{itemize}
+\item For POLS, where $v_{it}=c_i+e_{it}$, The OLS estimates would be
+\[
+\hat{\rho}-\rho = \left(\frac{1}{nT}\sum_{i=1}^n \sum_{t=1}^Ty_{it-1}^2 \right)^{-1}\frac{1}{nT}\sum_{i=1}^n \sum_{t=1}^Ty_{it-1}(c_i + e_{it})
+\]
+Since $y_{it-1} = \rho y_{it-2}+c_i + e_{it-1}$,  the $\frac{1}{nT}\sum_{i=1}^n \sum_{t=0}^Ty_{it-1}c_i$ does not converge in probability to 0
+\par
+\item For FD, 
+\[
+\Delta y_{i2}=\rho\Delta y_{i1}+\Delta e_{i2}
+\]
+\begin{align*}
+cov(\Delta y_{i1}, \Delta e_{i2})&=E[(y_{i1}-y_{i0})(e_{i2}-e_{i1})]\\
+ &=E[y_{i1}e_{i2}]-E[y_{i1}e_{i1}]-E[y_{i0}e_{i2}]+E[y_{i0}e_{i1}]
+\end{align*}
+Because of $E[y_{i1}e_{i1}]$ $\Delta y_{i1}$ is an endogenous regressor. 
+
+ \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{DPD: None of the static panel methods lead to consistent estimates!}
+\begin{itemize}
+\item Even for the within estimator, which is written as
+\[
+y_{it}-\frac{1}{T}\sum_{t=1}^Ty_{it}=\rho\left(y_{it-1}-\frac{1}{T}\sum_{t=1}^Ty_{it-1}\right)+e_{it}-\frac{1}{T}\sum_{t=1}^Te_{it}
+\]
+The regressor contains $y_{i0},..,y_{iT-1}$ and residuals contain $e_{i1},..,e_{iT}$. There are overlapping time periods, implying that the regressor becomes endogenous.
+ \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{We also need different exogeneity assumption}
+\begin{block}{DPD assumptions}
+\begin{itemize}
+\item[DP1] Sequential exogeneity: $E[e_{it}|w_{it},...,w_{i1},c_i]=0$ for each $t$
+\begin{itemize}
+\item Or $E[w_{is}e_{it}]=0$ for $s\in\{1,..,t\}, \ t\in\{1,..,T\}$
+\end{itemize}
+\item[DP2] Dynamic completeness: $E[y_{it}|x_t, y_{it-1}, x_{it-1}, y_{it-2},...,c_i]=E[y_{it}|x_t, y_{it-1},c_i]$. This implies that $x_t, y_{it-1}$ are all the lags needed and no information is lost by not including further lags. This implies that $E[e_{it}|x_t, y_{it-1}, x_{it-1}, y_{it-2},...,c_i]=0$, or no residual correlation
+\end{itemize}
+\end{block}
+\begin{itemize}
+\item In our context, fine to use the two interchangeably
+ \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Sequential exogeneity allows feedback effects!}
+\begin{itemize}
+\item It is difficult to take a stance on strict exogeneity, as the inclusion of the lagged variable introduces feedbacks in which $x_{it}$ can be affected by past values of $y_{it}$, say $y_{it-1}$. 
+\item In such case, the past shock $e_{it-1}$ can affect values of $x_{it}$. 
+\item Thus a flexible exogeneity assumption that takes into account these feedback effects are needed.
+\par
+\item The sequential exogeneity assumption implies the following
+\begin{itemize}
+\item For $s\leq t$, $E[w_{is}'e_{it}]=0$
+\item For $s< t$, $E[e_{is}e_{it}]=0$ for all possible values of $t$
+\end{itemize}
+ \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Solution is to use instrument from within the model}
+\begin{itemize}
+\item Internal instrument approach: Let $y_{t}=\alpha y_{t-1}+e_t, \ \ e_t\sim MA(1)= u_t+\theta u_{t-1}, \ u_t\sim WN$
+\item Here,
+\[
+\begin{aligned}
+E[y_{t-1}e_t]&=E[(\alpha y_{t-2}+e_{t-1})e_t]\\
+&=E[e_{t-1}e_t]\\
+&=E[(u_{t-1}+\theta u_{t-2})(u_{t}+\theta u_{t-1})]=\theta var(u_{t-1})
+\end{aligned}
+\]
+\item So $y_{t-2}$ to instrument $y_{t-1}$?
+\[
+\begin{aligned}
+E[y_{t-2}e_t]&=E[(\alpha y_{t-3}+e_{t-2})e_t]\\
+&=E[e_{t-2}e_t]\\
+&=E[(u_{t-2}+\theta u_{t-3})(u_{t}+\theta u_{t-1})]=0
+\end{aligned}
+\]
+ \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Just-identified solution: Anderson-Hsiao estimator}
+\begin{itemize}
+\item First difference the DGP and obtain
+\[
+\Delta y_{it}=\rho\Delta  y_{it-1} +\Delta e_{it}
+\]
+where possible values of $i$ remain the same but $t=2,...,T$
+\item $\Delta y_{it-1}$ can be instrumented with $y_{it-2}$
+\begin{itemize}
+\item \textbf{Relevancy}: $\Delta y_{it-1}= y_{it-1}-y_{it-2}$. 
+\item \textbf{Exogeneity}: $cov(y_{it-2},\Delta e_{it})=E[y_{it-2}, e_{it}-e_{it-1}]
+=E[y_{it-2}e_{it}]-E[y_{it-2}e_{it-1}]=0$
+ \end{itemize}
+ \item The number of moment conditions equal the number of endogenous variables $\to$ use MM approach (exact equation in the notes)
+ \end{itemize} 
+\end{frame}
+
+\begin{frame}
+\frametitle{Overidentified solution: Arellano-Bond estimator}
+\begin{itemize}
+\item In a same first-difference equation, instrument for $\Delta y_{it-1}$, with $y_{i0},...,y_{it-2}$
+\begin{itemize}
+\item \textbf{Relevancy:} It should be clear why $y_{it-2}$ is relevant. As for others, since $y_{it-1}=\rho y_{it-2}+u_{it-1}$ and $y_{it-2}=\rho y_{it-3}+u_{it-2}$ we can write recursively that
+\[
+y_{it-1} = \rho^2 y_{it-3}+\rho e_{it-2} + e_{it-1}
+\]
+... and so on. Therefore, we can verify relevancy.
+\item \textbf{Exogeneity:} Note that $cov(y_{is},\Delta e_{it})$ for any $s<t-1$ is 0, as we have shown above. So exogeneity holds as well.
+
+\end{itemize}
+\item  This is an overidentified case $\to$ GMM approach (refer to the notes for the estimators)
+ \end{itemize} 
+\end{frame}
+%%%%%%%%%%%
+\end{document}
