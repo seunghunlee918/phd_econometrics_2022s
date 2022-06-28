@@ -1,0 +1,425 @@
+\documentclass[aspectratio=169]{beamer}
+
+\mode<presentation>
+\usetheme{Boadilla}
+\definecolor{redback}{RGB}{140,0,0}
+\definecolor{blue}{RGB}{30,90,205}
+\definecolor{red}{RGB}{213,94,0}
+\definecolor{green}{RGB}{0,128,0}
+\setbeamercolor{title}{fg=redback}
+\setbeamercolor{frametitle}{fg=redback}
+\setbeamercolor{block title}{bg=redback, fg=white}
+\setbeamercolor{block body}{bg=white}
+\setbeamercolor{structure}{fg=redback}
+\setbeamercolor{item projected}{fg=white}
+\setbeamercolor{item}{fg=redback}
+\setbeamercolor{subitem}{fg=redback}
+\setbeamercolor{section in toc}{fg=redback}
+\setbeamercolor{description item}{fg=redback}
+\setbeamercolor{caption name}{fg=redback}
+\setbeamercolor{button}{bg=redback, fg=white}
+\setbeamercolor{caption name}{fg=redback}
+\usepackage{graphics}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usepackage{bbm}
+\usetikzlibrary{decorations.pathreplacing}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{multirow, makecell}
+\usepackage{float}
+\usepackage{fancyvrb}
+\usepackage{kotex}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{adjustbox}
+\usepackage{hyperref}
+\usepackage{threeparttable}
+\usepackage[scaled=0.92]{helvet}
+\usepackage[default]{lato} %If I want a twist
+\newenvironment{wideitemize}{\itemize\addtolength{\itemsep}{10pt}}{\enditemize}
+\newenvironment{wideenumerate}{\enumerate\addtolength{\itemsep}{10pt}}{\endenumerate}
+\newenvironment{widedescription}{\description\addtolength{\itemsep}{10pt}}{\enddescription}
+\hypersetup{
+colorlinks=true,
+linkcolor=redback,
+filecolor=green, 
+urlcolor=blue,
+}
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{author in head/foot}{bg=white, fg=redback}
+\setbeamercolor{title in head/foot}{bg=white, fg=redback}
+\setbeamercolor{date in head/foot}{bg=white, fg=redback}
+\setbeamercolor{section in head/foot}{bg=white, fg=redback}
+\setbeamercolor{page number in head/foot}{bg=white, fg=redback}
+\setbeamercolor{headline}{bg=redback}
+\setbeamertemplate{footline}{
+    \leavevmode%
+    \hbox{%
+        \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{date in head/foot}%
+            \usebeamerfont{date in head/foot}\insertshortdate
+        \end{beamercolorbox}%
+        \begin{beamercolorbox}[wd=.444444\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+            \usebeamerfont{title in head/foot}\insertshorttitle
+        \end{beamercolorbox}%
+        \begin{beamercolorbox}[wd=.222222\paperwidth,ht=2.25ex,dp=1ex,center]{page number in head/foot}%
+            \usebeamerfont{page number in head/foot} \insertframenumber{} / \inserttotalframenumber
+        \end{beamercolorbox}}%
+        \vskip0pt%
+    }
+
+\setbeamertemplate{section in toc}[sections numbered]
+\setbeamertemplate{subsection in toc}{\leavevmode\leftskip=3em\rlap{\hskip-1.75em\inserttocsectionnumber.\inserttocsubsectionnumber}\inserttocsubsection\par}
+\setbeamerfont{subsection in toc}{size=\footnotesize}
+
+\newenvironment{transitionframe}{\setbeamercolor{background canvas}{bg=redback}\setbeamertemplate{footline}{} \begin{frame}}{\end{frame}}
+\newcommand{\ROM}[1]
+    {\MakeUppercase{\romannumeral #1}}
+
+\makeatletter
+\let\@@magyar@captionfix\relax
+\makeatother
+
+
+\title[Recitation 5 (Intro to Econometrics \ROM{2})]{Recitation 5: Dependent dataset structure} % Change this regularly
+\author[]{Seung-hun Lee }
+\institute[]{Columbia University \\ Introduction to Econometrics \ROM{2} Recitation}
+
+\date[February 7th, 2022]{February 7th, 2022}
+
+\begin{document}
+\begin{frame}
+\titlepage
+\end{frame}
+
+
+%%% Color slides for section headers: Use for colloquium version (The ones bewteen \iffals and \fi)
+
+\begin{transitionframe}
+  \begin{center}
+         { \Huge \textcolor{white}{Standard errors in a dependent dataset}}
+       \end{center}
+\end{transitionframe}
+
+\begin{frame}
+\frametitle{Datasets are not always IID!}
+\begin{itemize}
+\item In a time series setting past shocks can carry over to future periods. 
+\item The data may be clustered: There are groups within the observations whose members show correlated patterns 
+\item In such case, there may be a dependence structure across error terms - so we look at clustered standard errors and (not today) Newey standard errors
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{IID features to set a yardstick}
+\begin{itemize}
+\item  Location: Assume strict exogeneity, or $ E[e_i |X_1,..,X_n]=0\ \forall  i$. This implies
+\[
+E[e|X] = \begin{pmatrix}E[e_1|X] \\ ... \\ E[e_n |X] \end{pmatrix}=\begin{pmatrix}E[e_1|X_1,..,X_n] \\ ... \\ E[e_n |X_1,..,X_n] \end{pmatrix}=0
+\]
+\item Bias can be calculated as
+\[
+E[\hat{\beta}-\beta|X]=E[(X'X)^{-1}X'e|X]=(X'X)^{-1}X'E[e|X]=0
+\]
+\item Here, IID is used in the sense that $E[e_i |X_1,..,X_n]$ holds identically for all values of $i$. 
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{IID is especially crucial in characterizing dispersion}
+\begin{itemize}
+\item  Dispersion: This relates to the variance of the $\hat{\beta}$ estimates. We write
+\[
+\begin{aligned}
+var(\hat{\beta}|X)&=E[(\hat{\beta}-E[\hat{\beta}])(\hat{\beta}-E[\hat{\beta}])'|X]\\
+&=E[(\hat{\beta}-\beta)(\hat{\beta}-\beta)'|X]\\
+&=(X'X)^{-1}X'E[ee'|X]X(X'X)^{-1}\\
+\end{aligned}
+\]
+\item IID allows us to focus on homoskedasticity and rule out dependence across $e_i, e_j$
+\item If homoskedastic, we can assume that $D=\sigma^2 I_n$. Then the variance can be written as
+\[
+var(\hat{\beta}|X)=\sigma^2(X'X)^{-1}
+\]
+\item We still can get White standard errors $\left(\sqrt{\widehat{V}_{\hat{\beta}}}\right)$ if homoskedasticity does not hold
+\[
+var(\hat{\beta}|X)=\widehat{V}_{\hat{\beta}}=(X'X)^{-1}\left(\sum_{i=1}^n x_ix_i'\hat{e}_i^2\right)(X'X)^{-1}
+\]
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{WLLN and CLT hold nicely in IID}
+\begin{itemize}
+\item Define our moment condition $g_i = X_ie_i = X'e$ and $\bar{g}(\beta)=\frac{1}{n}\sum_{i=1}^n X_ie_i$
+\item The weak law of large numbers and the central limit theorem implies
+\[
+\bar{g}(\beta)\xrightarrow{p} 0,  \ \sqrt{n}\bar{g}(\beta)\xrightarrow{d}N(0,\Omega)
+\]
+where $\Omega=E[g_ig_i']=E[x_ix_i'e_i^2]$. 
+\item We write $Q_{XX}=E[x_ix_i']=E[X'X]$ and obtain asymptotic distribution for $\hat{\beta}$
+\[
+\sqrt{n}(\hat{\beta}-\beta)\xrightarrow{d}N(0,Q_{XX}^{-1}\Omega Q_{XX}^{-1})
+\]
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Variances are different in homoskedasticity vs heteroskedasticity}
+\begin{itemize}
+\item Under homoskedasticity, write $\Omega_1=\sigma^2 Q_{XX}$ and the asymptotic variance is $\sigma^2 Q_{XX}^{-1}$. 
+\item Otherwise, we work with $\Omega_2 = E[x_ix_i'e_i^2]$ which is
+\[
+E[x_ix_i'e_i^2]=E[x_ix_i'E[e_i^2|X]]+E[x_ix_i'(e_i^2 -E[e_i^2|X])]
+\]
+\item  If homoskedasticity is the wrong assumption, the we are missing out the $E[x_ix_i'(e_i^2 -E[e_i^2|X])]$ part and get the wrong estimator\\ (we also need different wald statistic!)
+\item  If homoskedascitity is the correct assumption but we stick with $\Omega_2$, we end up with a slightly larger standard error \\(consistent in asymptotics and the wald statistic converges to chi-squared distribution) 
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Detecting heteroskedasticity: White test}
+\begin{itemize}
+\item The idea is to test whether the difference between $\Omega_1$ and $\Omega_2$ is large or not
+\item Original idea is to use
+\[
+ \widehat{\Omega}_2-\widehat{\Omega}_1= \frac{1}{n}\sum_{i=1}^nx_ix_i'(\hat{e}_i^2-s^2) \ \ (s^2= \frac{1}{n-k}\sum_{i=1}^n\hat{e}_i^2)
+\]
+\item $h_i$: Stacked up vector of all nonzero $x_ix_i'$ element ($vec$ operator)
+\item Define $c_n=\frac{1}{n}\sum_{i=1}^n(\hat{e}_i^2-s^2)h_i$ and we test using a the following test statistic
+\[
+c_n'(var(c_n))^{-1}c_n\xrightarrow{d}\chi^2_m
+\]
+where $m$ is the number of all the nonzero elements in $x_ix_i'$
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{An implementable version of White test}
+\begin{itemize}
+\item Regress  $\hat{e}_i^2$ onto the nonzero elements of $x_ix_i'$, which leads to
+\[
+\hat{e}_i^2 = \delta_0+\delta_1 x_1 + ... + \delta_k x_k + \delta_{k+1} x_1^2 + ... + \delta_{2k}x_k^2 + \delta_{2k+1}x_1x_2+...+\delta_{2k+[(k-1)k]/2}x_{k-1}x_k+\epsilon_i
+\]
+Obtain the $R^2$ and use $nR^2$ as our test statistic against the distribution $\chi^2_{m}$
+\item  A shorter version that does not subtract too much from the degrees of freedom is to regress the squared of residual onto the constant and the squared of the regressors
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Clustered samples}
+\begin{itemize}
+\item $n$ observations can be split into $G$ separate groups. 
+\item Let $g\in\{1,..,G\}$ index the group and $i\in\{1,..,n_g\}$ index individual in group $g$ which has $n_g$ observations (so $n=\sum_{g=1}^G n_g$).  
+\item The individual level observation for individual $i$ in group $g$ will be written as $(y_{ig}, x_{ig})$. 
+\item The cluster level observations will be denoted as $(y_{g}, X_{g})$, where $y_g = (y_{1g},...,y_{n_{g}g})'\in\mathbb{R}^{n_g}$ and $X_g\in\mathbb{R}^{n_g\times k}$ can be defined similarly. 
+\item The population level variables will be written as $(y,X)$.
+\item For DGP $y=X\beta+e$, the individual and cluster level regression is
+\[
+y_{ig} = x_{ig}'\beta+e_{ig}, \ \ y_{g} = X_{g}\beta+e_{g}
+\]
+\item OLS: $\left(\sum_{g=1}^G X_g'X_g\right)^{-1}\left(\sum_{g=1}^G X_g'y_g\right)=\left(\sum_{g=1}^G\sum_{i=1}^{n_g} x_{ig}x_{ig}'\right)^{-1}\left(\sum_{g=1}^G\sum_{i=1}^{n_g}x_{ig}y_{ig}\right)$
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Bias and variance for clustered samples}
+\begin{block}{Assumptions for the clustered samples}
+\begin{itemize}
+\item[A1] Clusters are known to researchers
+\item[A2] $(y_g, X_g)$ are independent across clusters
+\item[A3] $E[e_g|X_g]=0$ ($E[e_{ig}|X_g]=0$ for $i\in\{1,..,n_g\}$) - within-cluster correlation allowed
+\end{itemize}
+\end{block}
+\begin{itemize}
+\item OLS is still unbiased
+\item Conditional variance takes this form: 
+\[
+\begin{aligned}
+var\left[\sum_{g=1}^G X_g'e_g |X\right]&=\sum_{g=1}^G var(X_g'e_g|X_g)=\sum_{g=1}^G X_g'E[e_ge_g'|X_g]X_g=\sum_{g=1}^G X_g'D_gX_g=\Omega_n
+\end{aligned}
+\]
+Hence, $var(\hat{\beta}|X)=(X'X)^{-1}\Omega_n(X'X)^{-1}$
+\item Estimate with $\widehat{var}(\hat{\beta}|X)=(X'X)^{-1}\widehat{\Omega}_n(X'X)^{-1}$, where $\widehat{\Omega}_n=\sum_{g=1}^G X_g'\hat{e}_g\hat{e}_g'X_g$
+\end{itemize}
+\end{frame}
+
+\begin{transitionframe}
+  \begin{center}
+         { \Huge \textcolor{white}{Time series data}}
+       \end{center}
+\end{transitionframe}
+
+
+\begin{frame}
+\frametitle{Time series is not likely to be IID}
+\begin{itemize}
+\item When there is a time structure (or fixed ordering) with the dataset, the data is unlikely to satisfy the independence assumptions
+\item Serial correlation (autocorrelation) is likely an issue 
+\item Most shocks that affect many macroeconomic variables - GDP, unemployment to name a few - carry over to the next period
+\item Our asymptotic theories involved IID assumptions, so we need new tools to analyze key features in time series regressions
+\item We need concepts that allows us to pin the distribution to some constant parameter to obtain means, variances, and covariances
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Dependence between $y_t$ and $y_{t-k}$}
+\begin{itemize}
+\item \textbf{Autocovariance}: Let  $(y_t,...,y_{t-k})$ be part of a ordered sequence. Autocovariance between $y_t$ and $y_{t-k}$ is defined as 
+\[
+\gamma_t(k)=cov(y_t,y_{t-k}),\ \gamma_t(0)=cov(y_t,y_t)=var(y_t)
+\]
+
+\item \textbf{Autocorrelation} between $y_t$ and $y_{t-k}$ is defined as
+\[
+\rho_t(k) = \frac{cov(y_t,y_{t-k})}{\sqrt{var(y_t)var(y_{t-k})}}
+\]
+\item Autocovariances capture the linear dependence between $y_t$ and its lags. Autocorrelation is a scale-free version of this measure.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Covariance stationarity: Weakest version of stationarity}
+\begin{itemize}
+\item Let $\{y_t\}$ be a sequence of observations. We say $\{y_t\}$ satisfies covariance stationarity if the first and second moments are time-invariant. Or
+\[
+E[y_t]=\mu_t=\mu, \ \ \gamma_t(k)=\gamma(k) \ \text{and }\rho_t(k)=\rho(k) \ \forall k,  
+\]
+\item Mean can be characterized without $t$ 
+\item Autocovariance and autocorrelation only depends on the relative difference ($k$) between the sequences and not $t$
+\item This implies that $\gamma(k)=\gamma(-k)$ (The multivariate equivalent is $\Gamma(k)=\Gamma(-k)'$)
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Strict stationarity: All features of the distribution is time-invariant}
+\begin{itemize}
+\item Let $\{y_t\}$ be a sequence of observations. We say $\{y_t\}$ satisfies \textbf{strict stationarity} if distribution of $(y_t,...y_{t-k})$ is independent of $t$ for all $k$. 
+\item This means that the distribution of $\{y_t\}$ remains stable over time
+\item If $\{y_t\}$ satisfies strict stationarity, a linear transformation of that process $x_t = \phi(y_t,...,y_{t-k})$ is also strict stationary.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Ergodicity: Sample of $\{y_t\}$ captures all features of the full observation}
+\begin{itemize}
+\item Stationary process may show limited time series variation (being stuck at a particular area), resulting in a sample average representing a local area but not full distribution. 
+\item The intuitive definition of ergodicity is that the process should move around the average and take all values over its support.
+\item  A sufficient condition for this to happen is that the the process is asymptotically independent - or that any two random variables far apart in the sequence is almost independently distributed. or that $\gamma(k)\to 0$ as $k\to\infty$.  
+\item \textbf{Ergodic stationarity}: We say $\{y_t\}$ satisfies ergodic stationarity if distribution of $(y_t,...y_{t-k})$ is strictly stationary and ergodic. 
+\item $x_t=\phi(y_t,...,y_{t-k})$ is also ergodic stationary if $(y_t,...,y_{t-k})$ is ergodic stationary.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Ergodic theorem: LLN for dependent dataset}
+\begin{block}{Ergodic theorem}
+Let $\{y_t\}$ be strictly stationary and ergodic, $E|y_t|=\mu<\infty$. Then as $T\to \infty$, 
+\[
+\bar{y} = \frac{1}{T}\sum_{t=1}^T y_t  \xrightarrow{p} E[y_t]=\mu
+\]
+\end{block}
+\begin{itemize}
+\item We can analyze the consistency of the time series estimators with this.
+\item This also implies that the sample autocovariances converge to its true value
+\[
+\widehat{\gamma}_t(j)=\frac{1}{T}\sum_{t=1}^T (y_t-\bar{y})(y_{t-k}-\bar{y})\xrightarrow{p} \gamma(k)
+\]
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{IID version of CLT may fail even with white noise error}
+\begin{itemize}
+\item \textbf{White noise error (WN)}: an error $e_t$ satisfying $E[e_t]=0$ and $\gamma(k)=0 \ \forall k\neq0$
+\item Let $y_t=\mu+e_t$ where $e_t$ is WN. The sample variance $var(\bar{y})$ can be calculated as
+\[
+var(\bar{y})=var\left(\frac{1}{T}\sum_{t=1}^T y_t\right)
+=\frac{1}{T^2}var\left(\sum_{t=1}^T y_t\right)
+\]
+\item In the case where $y_t$ satisfies IID$(\mu, \sigma^2)$, with $E[y_ty_s]=0$ for $t\neq s$, calculating the sample variance is simple and becomes 
+\[
+var(\bar{y})=\frac{1}{T^2}\sum_{t=1}^Tvar(y_t)=\frac{\sigma^2}{T}
+\]
+\item The central limit theorem would yield $\sqrt{T}\frac{\bar{y}-\mu}{\sigma}\sim N(0,1)$
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{...because long-run variances differ from simple short-run version}
+\begin{itemize}
+\item This is because $E[e_te_j]$ is nonzero!
+\item The version of CLT with this in mind is the following
+\end{itemize}
+\begin{block}{CLT for dependent data}
+Let $\{y_t\}$ come from a dependent data satisfying strict stationarity and ergodicity. Specifically, let $y_t = \mu + e_t$ with $e_t$ being a white noise. then, as $T\to\infty$, the following holds, 
+\[
+\sqrt{T}\frac{\bar{y}-\mu}{\omega}\sim N(0,1)
+\]
+where $\omega^2= \sum_{j=-\infty}^\infty \gamma(j)=\gamma(0)+2\sum_{j=1}^\infty \gamma(j)$
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Lags of dependent variable as independent variables}
+\begin{itemize}
+\item \textbf{AR(p)} process: Including  $p$ lags of dependent variable as independent variable
+\[
+y_t = \alpha_1y_{t-1}+...+\alpha_p y_{t-p}+e_t
+\]
+\item Lag operator $L$:  $Ly_t= y_{t-1},..,L^p y_t = y_{t-p}$. 
+\item AR(1): Can be written as
+\[
+y_t = \alpha y_{t-1}+e_t = (1-\alpha L)y_t = e_t
+\]
+where $\alpha$ is our parameter of interest
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Rewriting AR(1) with just $e_t$'s}
+\begin{itemize}
+\item Take the process one period back and write $y_{t-1}=\alpha y_{t-2}+e_{t-1}$. 
+\item Then plug this into $y_t=\alpha y_{t-1} +e_t$ to get
+\[
+y_{t}=\alpha(\alpha y_{t-2}+e_{t-1})+e_t
+\]
+\item Repeat this for all the possible lags of $y$ variable. This would leave us with
+\[
+y_t = e_t + \alpha e_{t-1} + \alpha^2 e_{t-2}+ .... + \alpha ^t e_0
+\] 
+\item If we work with infinite periods of time, we can write
+\[
+y_t = \sum_{j=0}^\infty (\alpha L)^j e_t= \sum_{j=0}^\infty \alpha^j e_{t-j}
+\]
+\item For this summation to not diverge, we need that $|\alpha|<1$. Otherwise, $y_t$ diverges.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Use of AR(1): How long does a random shock persist?}
+\begin{itemize}
+\item Impulse response function: Useful for shock analysis
+\item Suppose that a random shock happens at $t=1$ (so $e_1\neq0$) and nowhere else $(y_0=0)$
+\item Then we can write
+\[
+\begin{aligned}
+y_0&=0\\ 
+y_1 &=\alpha y_0+ e_1 =e_1\\
+y_2 &= \alpha y_1+e_2 = \alpha(\alpha y_0+ e_1)+e_2 = \alpha e_1 + e_2 = \alpha e_1 \\
+y_3 & = \alpha^2e_1 + \alpha e_2 + e_3 = \alpha^2 e_1\ \  \text{and so on}\\
+\end{aligned}
+\]
+\item  $\alpha$ represents the persistence of a shock
+\begin{itemize}
+\item $\alpha$ close to 0 implies that the shock is transient
+\item $|\alpha|<1$ that is close to 1 is a persistent shock that dies away eventually
+\item If not in this range,  divergent shock that does not die out!
+\end{itemize}
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%
+\end{document}
