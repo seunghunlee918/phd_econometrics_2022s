@@ -1,0 +1,477 @@
+\documentclass[aspectratio=169]{beamer}
+
+\mode<presentation>
+\usetheme{Boadilla}
+\definecolor{redback}{RGB}{140,0,0}
+\definecolor{blue}{RGB}{30,90,205}
+\definecolor{red}{RGB}{213,94,0}
+\definecolor{green}{RGB}{0,128,0}
+\setbeamercolor{title}{fg=redback}
+\setbeamercolor{frametitle}{fg=redback}
+\setbeamercolor{block title}{bg=redback, fg=white}
+\setbeamercolor{block body}{bg=white}
+\setbeamercolor{structure}{fg=redback}
+\setbeamercolor{item projected}{fg=white}
+\setbeamercolor{item}{fg=redback}
+\setbeamercolor{subitem}{fg=redback}
+\setbeamercolor{section in toc}{fg=redback}
+\setbeamercolor{description item}{fg=redback}
+\setbeamercolor{caption name}{fg=redback}
+\setbeamercolor{button}{bg=redback, fg=white}
+\setbeamercolor{caption name}{fg=redback}
+\usepackage{graphics}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usepackage{bbm}
+\usetikzlibrary{decorations.pathreplacing}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{multirow, makecell}
+\usepackage{float}
+\usepackage{fancyvrb}
+\usepackage{kotex}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{adjustbox}
+\usepackage{hyperref}
+\usepackage{threeparttable}
+\usepackage[scaled=0.92]{helvet}
+\usepackage[default]{lato} %If I want a twist
+\newenvironment{wideitemize}{\itemize\addtolength{\itemsep}{10pt}}{\enditemize}
+\newenvironment{wideenumerate}{\enumerate\addtolength{\itemsep}{10pt}}{\endenumerate}
+\newenvironment{widedescription}{\description\addtolength{\itemsep}{10pt}}{\enddescription}
+\hypersetup{
+colorlinks=true,
+linkcolor=redback,
+filecolor=green, 
+urlcolor=blue,
+}
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{author in head/foot}{bg=white, fg=redback}
+\setbeamercolor{title in head/foot}{bg=white, fg=redback}
+\setbeamercolor{date in head/foot}{bg=white, fg=redback}
+\setbeamercolor{section in head/foot}{bg=white, fg=redback}
+\setbeamercolor{page number in head/foot}{bg=white, fg=redback}
+\setbeamercolor{headline}{bg=redback}
+\setbeamertemplate{footline}{
+    \leavevmode%
+    \hbox{%
+        \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{date in head/foot}%
+            \usebeamerfont{date in head/foot}\insertshortdate
+        \end{beamercolorbox}%
+        \begin{beamercolorbox}[wd=.444444\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+            \usebeamerfont{title in head/foot}\insertshorttitle
+        \end{beamercolorbox}%
+        \begin{beamercolorbox}[wd=.222222\paperwidth,ht=2.25ex,dp=1ex,center]{page number in head/foot}%
+            \usebeamerfont{page number in head/foot} \insertframenumber{} / \inserttotalframenumber
+        \end{beamercolorbox}}%
+        \vskip0pt%
+    }
+
+\setbeamertemplate{section in toc}[sections numbered]
+\setbeamertemplate{subsection in toc}{\leavevmode\leftskip=3em\rlap{\hskip-1.75em\inserttocsectionnumber.\inserttocsubsectionnumber}\inserttocsubsection\par}
+\setbeamerfont{subsection in toc}{size=\footnotesize}
+
+\newenvironment{transitionframe}{\setbeamercolor{background canvas}{bg=redback}\setbeamertemplate{footline}{} \begin{frame}}{\end{frame}}
+\newcommand{\ROM}[1]
+    {\MakeUppercase{\romannumeral #1}}
+
+\makeatletter
+\let\@@magyar@captionfix\relax
+\makeatother
+
+
+\title[Recitation 2 (Intro to Econometrics \ROM{2})]{Recitation 2: Various IV estimators and GMM} % Change this regularly
+\author[]{Seung-hun Lee }
+\institute[]{Columbia University \\ Introduction to Econometrics \ROM{2} Recitation}
+
+\date[January 31st, 2022]{January 31st, 2022}
+
+\begin{document}
+\begin{frame}
+\titlepage
+\end{frame}
+
+
+%%% Color slides for section headers: Use for colloquium version (The ones bewteen \iffals and \fi)
+
+\begin{transitionframe}
+  \begin{center}
+         { \Huge \textcolor{white}{Two stage least squares}}
+       \end{center}
+\end{transitionframe}
+
+
+
+\begin{frame}
+\frametitle{2SLS teases out exogenous variation from $X_2$}
+\begin{itemize}
+\item Suppose the structural equation and the first-stage regression is as follows.
+\begin{gather*}
+y=X\beta+e = X_1\beta_1 + X_2\beta_2+e \tag{Structural}\\
+X=Z\Gamma+v \tag{First Stage}
+\end{gather*}
+where $Z\in\mathbb{R}^{n\times l},\Gamma\in\mathbb{R}^{l\times k}$
+\item For $X_2$, write $X_2 = Z\pi_2+v_2$
+\item Assume $E[z_ie_i]=0, E[x_{1i}'e_i]=0, E[z_iv_{2i}]=0$ and $E[x_{2i}e_i]\neq0$
+\item we can get
+\[
+E[x_{2i}e_i]=E[z_ie_i]\pi_2+E[v_{2i}e_i]
+\]
+\begin{itemize}
+\item Endogeneity of the $X_2$ regressors come from the $E[v_{2i}e_i]$
+\item  $X_2$ is composed of the parts spanned by $Z$ and the other that is orthogonal to $Z$.
+\item We want to `tease out' part of the $X_2$ variables that can be explained by $Z$ and use a generated regressor from this process to derive the estimator of interest
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{But first, some useful tricks}
+...because you will use them a lot!
+\begin{block}{Projection matrix $P_Z=Z(Z'Z)^{-1}Z'$}
+\begin{itemize} 
+\item Symmetric: $P_Z'=(Z(Z'Z)^{-1}Z')'=Z(Z'Z)^{-1}Z'=P_Z$
+\item Idempotent: $P_Z^2=Z(Z'Z)^{-1}Z'Z(Z'Z)^{-1}Z'=Z(Z'Z)^{-1}Z'=P_Z$
+\end{itemize}
+\end{block}
+\begin{block}{Residual matrix $M_Z=I-P_Z$}
+\begin{itemize} 
+\item Symmetric: $M_Z'=I'-(Z(Z'Z)^{-1}Z')'=I-Z(Z'Z)^{-1}Z'=I-P_Z=M_Z$
+\item Idempotent: $M_Z^2=(I-P_Z)(I-P_Z)=I-P_Z-P_Z+P_Z'P_Z=I-P_Z=M_Z$
+\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{How to run 2SLS?}
+\begin{itemize}
+\item First stage
+\begin{itemize}
+\item Regress the first stage and obtain the first stage estimator $\widehat{\Gamma}=(Z'Z)^{-1}Z'X$. 
+\item Then, get the predicted value of $X$, denoted as $\widehat{X}=Z(Z'Z)^{-1}Z'X=P_ZX$. 
+\item By doing so, we provide a way to map the space of $l$-dimensional vectors to $k$-dimensional vectors. (so $l=k$ assumption can be relaxed here)
+\end{itemize}
+
+\item Second stage
+\begin{itemize}
+\item In the structural equation, replace $X$ with $\widehat{X}$ and obtain
+\[
+\begin{aligned}
+\hat{\beta}_{2SLS}&=(\widehat{X}'\widehat{X})^{-1}\widehat{X}'y=(X'P_Z'P_ZX)^{-1}(X'P_Z'y)\\
+&=(X'P_ZX)^{-1}X'P_Zy =(\widehat{X}'X)^{-1}\widehat{X}'y\\
+\end{aligned}
+\]
+\end{itemize}
+\item Watch out for using the correct form of standard errors (a problem set question)
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Assumptions for proving asymptotics of 2SLS estimators}
+\begin{block}{2SLS assumptions}
+\begin{itemize}
+\item[T1] $(y_i, x_i, z_i)$ are IID
+\item[T2] Finite second moments: $E||y_i^2||<\infty, E||x_i^2||<\infty, E||z_i^2||<\infty$
+\item[T3] $E(z_iz_i')>0$
+\item[T4] $rank[E(z_ix_i')]=k$
+\item[T5] $E(z_ie_i)=0$
+\item[T6] Finite fourth moments: $E||y_i^4||<\infty, E||x_i^4||<\infty, E||z_i^4||<\infty$
+\item[T7] $E(z_iz_i'e_i^2)=\Omega>0$
+\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Consistency and asymptotic normality of IV estmators}
+\begin{block}{Consistency and normality}
+\begin{itemize}
+\item Under assumptions \textbf{T1-T5}, $\hat{\beta}_{2SLS}\xrightarrow{p}\beta$
+\item  Under assumptions \textbf{T1-T7}, the limiting distribution of the 2SLS estimator is characterized by $\sqrt{n}(\hat{\beta}_{2SLS}-\beta)\xrightarrow{d}N(0,V_\beta)$
+\begin{itemize}
+\item Note that
+\footnotesize{\[
+\sqrt{n}(\hat{\beta}_{2SLS}-\beta)=\left[\frac{X'Z}{n}\left(\frac{Z'Z}{n}\right)^{-1} \frac{Z'X}{n}\right]^{-1}\left[\frac{X'Z}{n}\left(\frac{Z'Z}{n}\right)^{-1} \frac{Z'e}{\sqrt{n}}\right]
+\]}\normalsize
+By CLT, $\frac{Z'e}{\sqrt{n}}=\frac{1}{\sqrt{n}}\sum_{i=1}^nz_ie_i\xrightarrow{d}N(0,\Omega)$. Then Slutsky theorem and CMT,
+\footnotesize{\[
+\sqrt{n}(\hat{\beta}_{2SLS}-\beta)\xrightarrow{d}N(0,\underbrace{A_n\Omega A_n'}_{V_\beta})
+\]}\normalsize
+where $A_n=\left[\frac{X'Z}{n}\left(\frac{Z'Z}{n}\right)^{-1} \frac{Z'X}{n}\right]^{-1}\left[ \frac{X'Z}{n}\left(\frac{Z'Z}{n}\right)^{-1}\right]$
+\end{itemize}
+\end{itemize}
+\end{block}
+\end{frame}
+
+
+\begin{transitionframe}
+  \begin{center}
+         { \Huge \textcolor{white}{Control function methods}}
+       \end{center}
+\end{transitionframe}
+
+
+\begin{frame}
+\frametitle{Endogeneity comes from correlation of two error terms!}
+\begin{itemize}
+\item  Write the structural and reduced form regression as
+\[
+\begin{aligned}
+y_i &= x_{1i}'\beta_1 + x_{2i}'\beta_2+e_i \\
+x_{2i}&=\Gamma_{12}'x_{1i}+\Gamma_{22}'z_{2i}+u_{2i} \\
+\end{aligned}
+\]
+where $E[z_ie_i]=0, E(x_{1i}e_i)=0, E(x_{2i}e_i)\neq0$
+\item We can write $E(x_{2i}e_i)$ as 
+\[
+\begin{aligned}
+E[x_{2i}e_i]&= E[(\Gamma_{12}'x_{1i}+\Gamma_{22}'\beta_2+u_{2i})e_i]\\
+&= \Gamma_{12}'E(x_{1i}e_i)+\Gamma_{22}'E(z_{2i}e_i)+E(u_{2i}e_i)\\
+&= E(u_{2i}e_i) \ (\because \text{The first by exogeneity, the second by IV conditions})\\
+\end{aligned}
+\]
+\item So correlation comes from $E(u_{2i}e_i)$
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Idea: What part of $e_i$ is $u_{2i}$ vs something exogenous?}
+\begin{itemize}
+\item consider a linear projection of $e_i$ onto $u_{2i}$, which we write as
+\[
+e_i  = u_{2i}'a+\epsilon_i \ (E(u_{2i}\epsilon_i)=0)
+\]
+where the population analogue of $a=E(u_{2i}u_{2i}')^{-1}E(u_{2i}e_i)$
+\item Substitute the $e_i$ term in the structural equation with the above to get
+\[
+y_i = x_{1i}'\beta_1 + x_{2i}'\beta_2+ u_{2i}'a+\epsilon_i  
+\]
+\item Then we can show
+\[
+\begin{aligned}
+E[x_{2i}\epsilon_i]&=E[x_{2i}(e_i-u_{2i}'a)]=E[x_{2i}e_i]-E[x_{2i}u_{2i}']a \\
+&=E[u_{2i}e_i]-\Gamma_{12}'E[x_{1i}u_{2i}']a-\Gamma_{22}'E[z_{2i}u_{2i}']a-E[u_{2i}u_{2i}']a\\
+&=E[u_{2i}e_i]-0-0-E[u_{2i}e_i]=0 \\
+\end{aligned}
+\]
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{\#metricstotheface: How and when to implement them}
+\begin{itemize}
+\item We usually don't know $u_{2i}$
+\item We work in these steps
+\begin{enumerate}
+\item \textbf{Obtain $\hat{u}_{2i}$}: This is done by regressing (Reduced Form) equation. 
+\item \textbf{Work with (CFA)}: However, instead of $u_{2i}$, use $\hat{u}_{2i}$. Then we can run an OLS
+\end{enumerate}
+\item Use Frisch-Waugh-Lovell to show this is equivalent to 2SLS
+\item When to use control function?
+\begin{itemize}
+\item Endogeneity test: $H_0: a=0 vs. H_1:\lnot H_0$
+\item (Wooldridge 2015): Study the self-selection to treatment, flexibly applicable in nonlinear setups, does not rely on assumptions of MLE being correct
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{transitionframe}
+  \begin{center}
+         { \Huge \textcolor{white}{Other topics in IV estmation}}
+       \end{center}
+\end{transitionframe}
+
+
+
+\begin{frame}
+\frametitle{Generated regressors: First-stage sampling uncertainties carry over!}
+\begin{itemize}
+\item Suppose we have a latent variable $W$, and $y = W\beta+e$
+\item  We do know $W= Z\gamma + u$ and assume it is estimable in that $\widehat{W} = Z\hat{\gamma} $
+\item We can write main regression as 
+\[
+y=W\beta+e \iff y=\widehat{W}\beta + (e+(W-\widehat{W})\beta)
+\]
+\item  So $ \hat{\beta}-\beta =  (\widehat{W}'\widehat{W})^{-1}\widehat{W}'(e+(W-\widehat{W})\beta)$
+\item Consistency is not a problem, but inference could be affected
+\begin{itemize}
+\item Rewrite $\hat{\beta}-\beta=(\hat{\gamma}'Z'Z\hat{\gamma})^{-1}\hat{\gamma}'Z'[\underbrace{e-u\beta}_{\epsilon}]$
+\item Then $\sqrt{n}(\hat{\beta}-\beta)\xrightarrow{D}N(0,V_\beta^*)$ where $V_\beta^*=\left(\gamma'E[Z'Z]\gamma\right)^{-1}\left(\gamma'E[Z'\epsilon\epsilon'Z] \gamma\right) \left(\gamma'E[Z'Z]\gamma\right)^{-1}$, which is inflated compared to true variance $\left(\gamma'E[Z'Z]\gamma\right)^{-1}\left(\gamma'E[Z'ee'Z] \gamma\right) \left(\gamma'E[Z'Z]\gamma\right)^{-1}$
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Nonlinear IV: $(\widehat{X}_2)^2$ and $\widehat{X_2^2}$ is not the same!}
+\begin{itemize} 
+\item Consider this structural equation (supply and demand)
+\[
+\begin{aligned}
+y_{1}&=\gamma_{12}y_{2}+\gamma_{13}y_{2}^2+\delta_{11}z_1+u_1 \ (E[u_1|\mathbf{z}]=0)\\ 
+y_{1}&=\gamma_{12}y_{2}+\delta_{22}z_2+u_2 \ (E[u_2|\mathbf{z}]=0)
+\end{aligned}
+\]
+\item Let $y_3 = y_2^2$. Then the natural candadiates for an IV would be all of $z_1,z_2,z_1^2, z_2^2, z_1z_2$
+\item Frequent mistake: Including $x_{1i}, \hat{x}_{2i}, (\hat{x}_{2i})^2$ in the second stage regression
+\begin{itemize}
+\item  This ignores the fact that the linear projection of the squared is not equal to the square of the linear projection, leading to an inconsistent estimation. 
+\item Consistent estimation must project the original and squared values separately (this is a problem set question!)
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Correlated random coefficients: How to do 2SLS and control function}
+\begin{itemize} 
+\item Write this model as
+\[
+y_i = x_{2i}\beta_i+e_i, \ (E[x_{2i}e_i]\neq0, \beta_i=\beta+w_i, E[\beta_i]=\beta)
+\]
+\item This can be written as $y_i = x_{2i}\beta+e_i+x_{2i}w_i$
+\item Problem: Even if we assume that $E[e_i|z_i]=E[w_i|z_i]=0$ IV estimator is not consistent if $E[x_{2i}w_i|z_i]$ depends on $z_i$
+\item 2SLS: Find $z_i$ s.t. $cov(x_{2i},w_i|z_i)=cov(x_{2i},w_i)$ 
+\item Control function: If the model for $x_2$ is 
+\[
+x_{2i}=z_i\pi_2+v_{2i} \ (E[v_{2i}|z_i]=0, E[e_i|v_{2i}]=\rho_ev_{2i}, E[w_i|v_{2i}]=\rho_wv_{2i})
+\]
+Then $E[y_i|x_{2i}, v_{2i}]= x_{2i}\beta+\rho_ev_{2i}+\rho_wv_{2i}x_{2i}$. So regress $y_i$ on $x_{2i}, \hat{v}_{2i}$, and $\hat{v}_{2i}x_i$
+\end{itemize}
+\end{frame}
+
+\begin{transitionframe}
+  \begin{center}
+         { \Huge \textcolor{white}{Generalized method of moments}}
+       \end{center}
+\end{transitionframe}
+
+
+\begin{frame}
+\frametitle{GMM: Extension of method of moments approach}
+\begin{itemize}
+\item GMM methods utilize the method of moments estimators to identify the values of the parameters of interest
+\item  It can be generalized in the sense that the number of moment conditions can be greater than the number of unknown parameters.
+\item Let $w_i$ be IID across $i=1,..,n$,  $g_i(w_i, \beta)$ be a $l\times1$ function of the $i$th observation, and $\beta\in\mathbb{R}^{k\times1}$ be the parameter of interest.  ($l\geq k$). Then, the \textbf{moment equation model} is characterized by
+\[
+E[g(w_i,\beta)]=0
+\]
+\item  We say $\beta$ is identified if there is a unique $\beta$ satisfying $E[g(w_i,\beta)]=0$
+\begin{itemize}
+\item When $l=k$, then we are in a just-identified case
+\item If $l>k$, then we are in the over-identified case %excess info
+\item If  $l<k$, we are in an under-identified case
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{GMM estimator}
+\begin{itemize}
+\item  Define $J(\beta)$ as
+\[
+J(\beta)=n \bar{g}_n(\beta)'W\bar{g}_n(\beta)
+\]
+where $W\in\mathbb{R}^{l\times l}$ is a positive definite weight matrix that is given.
+\begin{itemize}
+ \item $n$ does not really affect our estimation, but it makes the analysis of the asymptotic features much easier
+\end{itemize}
+\item The \textbf{generalized method of moments estimator} is defined as the minimizer of the GMM criterion above, or
+\begin{gather*}
+\hat{\beta}_{GMM}=\arg\min_\beta J_n(\beta)\\
+\implies\frac{\partial J_n(\beta)}{\partial \beta}=2n\frac{\partial \bar{g}(\beta)}{\partial\beta}'W\bar{g}(\beta)=0\\
+\end{gather*}
+\item We can show that OLS, MLE, and IV are all part of GMM (check the note)
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Limiting Distribution of GMM: Building block}
+\begin{itemize}
+\item  Given  that $\hat{\beta}_{GMM}=(X'ZWZ'X)^{-1}(X'ZWZ'y)$ for overidentified IV model, we can rewrite this by replacing $y$ with $X\beta+e$
+\item As a result, $\sqrt{n}(\hat{\beta}_{GMM}-\beta)=\left(\frac{X'Z}{n}W\frac{Z'X}{n}\right)^{-1}\left(\frac{X'Z}{n}W\frac{Z'e}{\sqrt{n}}\right)$
+\begin{block}{Assumptions}
+Assume that
+\begin{enumerate}
+\item $E(z_ix_i')=Q$, and that $\frac{Z'X}{n}\xrightarrow{p}Q$
+\item $\frac{Z'e}{\sqrt{n}}\xrightarrow{d}N(0,\Omega)$, where $\Omega = E(z_iz_i'e_i^2)$
+\item (If we are willing to assume $W$ depends on $n$, thus $W_n$): $W_n\xrightarrow{p}W$, where $W$ is a positive definite weight matrix
+\end{enumerate}
+\end{block}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Limiting Distribution of GMM}
+\begin{itemize}
+\item  If the above assumptions are satisfied, the limiting distribution of the GMM estimator can be characterized by
+\[
+\sqrt{n}(\hat{\beta}_{GMM}-\beta)\xrightarrow{d}N(0,(Q'WQ)^{-1}(Q'W\Omega W'Q)(Q'WQ)^{-1})
+\]
+\item Even if we suppose that $W$ depends on $n$ somehow, the above theorem still holds, provided that $W_n$ converges in probability to $W$
+\item Question: What is the best selection for $W$?
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Efficient GMM uses $W=\Omega^{-1}$}
+\begin{itemize}
+\item  To select an optimal $W$ matrix, the resulting variance should be the smallest. 
+\item If we let $W=\Omega^{-1}$ and work with $(Q'WQ)^{-1}(Q'W\Omega W'Q)(Q'WQ)^{-1}-(Q'\Omega Q)^{-1}$, we can see that it is positive semidefinite
+\item When we recalculate the variance, we get that the efficient GMM has a limiting distribution characterized by
+\[
+\sqrt{n}(\hat{\beta}_{GMM}-\beta)\xrightarrow{d}N(0,(Q'WQ)^{-1})
+\]\par
+\item Try using the approach suggested in the problem set
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Implementing efficient GMM: Two-step Optimal GMM}
+\begin{itemize}
+\item We have no idea what $\Omega$ truly is. 
+\item Therefore, we require a consistent estimator, denoted as $\widehat{W}$, for $W=\Omega^{-1}$
+\begin{block}{Two-step Optimal GMM}
+We can compute Optimal Two-step GMM in these steps
+\begin{enumerate}
+\item Compute a preliminary, but consistent estimator for the true $\beta$. Denote this as $\tilde{\beta}$. In this step, you can use any $W$, say $(Z'Z)^{-1}$
+\item Using $\Omega=E[g(w_i,\beta)g(w_i,\beta)']$, create a sample analogue of this, defined as $\widehat{\Omega}=\frac{1}{n}\sum_{i=1}^n g(w_i.\tilde{\beta})g(w_i.\tilde{\beta})'$. We can find our $\widehat{\Omega}^{-1}$ here. 
+\item Using this $\widehat{\Omega}^{-1}$, construct an efficient GMM estimator $\hat{\beta}_{GMM}$
+\end{enumerate}
+\end{block}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Alternative to the $\widehat{\Omega}$ that is (slightly) better}
+\begin{itemize}
+\item There is another way to come up with a $\widehat{\Omega}^{-1}$ in this context. 
+\item Define $\bar{g}(\beta)=\frac{1}{n}\sum_{i=1}^ng(w_i,\tilde{\beta})$. 
+\item Then, an alternative definition of $\widehat{\Omega}$ can be written as
+\[
+\widehat{\Omega}^+=\frac{1}{n}\sum_{i=1}^n(g(w_i,\tilde{\beta})-\bar{g}(\beta))(g(w_i,\tilde{\beta})-\bar{g}(\beta))'
+\]
+\item Both $\widehat{\Omega}$ and $\widehat{\Omega}^+$ converge in probability to $E[g(w_i,\beta)g(w_i,\beta)']$
+\item However, if $E[g(w_i, \beta)]\neq0$, we view $\widehat{\Omega}^+$ as a robust estimator. $\widehat{\Omega}$ is inconsistent in case where $E[g(w_i,\tilde{\beta})]=0$ is not guaranteed.
+\item For tests such as overidentification tests, it is much more desirable to use $\widehat{\Omega}^+$
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Estimator for the asymptotic variance?}
+\begin{itemize}
+\item Since we know how to find the optimal $\widehat{W}$, we can estimate the asymptotic variance of the GMM estimators
+\item This can be done by replacing matrices in the original variance with their sample counterparts. In general, we can estimate by
+\[
+\widehat{V}_{GMM}=\left(\widehat{Q}'\widehat{W}\widehat{Q}\right)^{-1}\left(\widehat{Q}'\widehat{W}\widehat{\Omega}\widehat{W}\widehat{Q}\right)\left(\widehat{Q}'\widehat{W}\widehat{Q}\right)^{-1}
+\]
+where $\widehat{Q}=\frac{1}{n}\sum_{i=1}^n z_ix_i' = \frac{Z'X}{n}$, $\widehat{W}$ is expressed by either $\widehat{\Omega}$ or $\widehat{\Omega}^+$. 
+\item The residuals used in this estimation is defined as $\hat{e}_i = y_i- x_i'\hat{\beta}_{GMM}$
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%
+\end{document}
