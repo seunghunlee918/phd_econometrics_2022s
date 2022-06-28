@@ -1,0 +1,476 @@
+\documentclass[aspectratio=169]{beamer}
+
+\mode<presentation>
+\usetheme{Boadilla}
+\definecolor{redback}{RGB}{140,0,0}
+\definecolor{blue}{RGB}{30,90,205}
+\definecolor{red}{RGB}{213,94,0}
+\definecolor{green}{RGB}{0,128,0}
+\setbeamercolor{title}{fg=redback}
+\setbeamercolor{frametitle}{fg=redback}
+\setbeamercolor{block title}{bg=redback, fg=white}
+\setbeamercolor{block body}{bg=white}
+\setbeamercolor{structure}{fg=redback}
+\setbeamercolor{item projected}{fg=white}
+\setbeamercolor{item}{fg=redback}
+\setbeamercolor{subitem}{fg=redback}
+\setbeamercolor{section in toc}{fg=redback}
+\setbeamercolor{description item}{fg=redback}
+\setbeamercolor{caption name}{fg=redback}
+\setbeamercolor{button}{bg=redback, fg=white}
+\setbeamercolor{caption name}{fg=redback}
+\usepackage{graphics}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usepackage{bbm}
+\usetikzlibrary{decorations.pathreplacing}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{multirow, makecell}
+\usepackage{float}
+\usepackage{fancyvrb}
+\usepackage{kotex}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{adjustbox}
+\usepackage{hyperref}
+\usepackage{threeparttable}
+\usepackage[scaled=0.92]{helvet}
+\usepackage[default]{lato} %If I want a twist
+\newenvironment{wideitemize}{\itemize\addtolength{\itemsep}{10pt}}{\enditemize}
+\newenvironment{wideenumerate}{\enumerate\addtolength{\itemsep}{10pt}}{\endenumerate}
+\newenvironment{widedescription}{\description\addtolength{\itemsep}{10pt}}{\enddescription}
+\hypersetup{
+colorlinks=true,
+linkcolor=redback,
+filecolor=green, 
+urlcolor=blue,
+}
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{author in head/foot}{bg=white, fg=redback}
+\setbeamercolor{title in head/foot}{bg=white, fg=redback}
+\setbeamercolor{date in head/foot}{bg=white, fg=redback}
+\setbeamercolor{section in head/foot}{bg=white, fg=redback}
+\setbeamercolor{page number in head/foot}{bg=white, fg=redback}
+\setbeamercolor{headline}{bg=redback}
+\setbeamertemplate{footline}{
+    \leavevmode%
+    \hbox{%
+        \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{date in head/foot}%
+            \usebeamerfont{date in head/foot}\insertshortdate
+        \end{beamercolorbox}%
+        \begin{beamercolorbox}[wd=.444444\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+            \usebeamerfont{title in head/foot}\insertshorttitle
+        \end{beamercolorbox}%
+        \begin{beamercolorbox}[wd=.222222\paperwidth,ht=2.25ex,dp=1ex,center]{page number in head/foot}%
+            \usebeamerfont{page number in head/foot} \insertframenumber{} / \inserttotalframenumber
+        \end{beamercolorbox}}%
+        \vskip0pt%
+    }
+
+\setbeamertemplate{section in toc}[sections numbered]
+\setbeamertemplate{subsection in toc}{\leavevmode\leftskip=3em\rlap{\hskip-1.75em\inserttocsectionnumber.\inserttocsubsectionnumber}\inserttocsubsection\par}
+\setbeamerfont{subsection in toc}{size=\footnotesize}
+
+\newenvironment{transitionframe}{\setbeamercolor{background canvas}{bg=redback}\setbeamertemplate{footline}{} \begin{frame}}{\end{frame}}
+\newcommand{\ROM}[1]
+    {\MakeUppercase{\romannumeral #1}}
+
+\makeatletter
+\let\@@magyar@captionfix\relax
+\makeatother
+
+
+\title[Recitation 1 (Intro to Econometrics \ROM{2})]{Recitation 1: Logistics and IV estimation} % Change this regularly
+\author[]{Seung-hun Lee }
+\institute[]{Columbia University \\ Introduction to Econometrics \ROM{2} Recitation}
+
+\date[January 24th, 2022]{January 24th, 2022}
+
+\begin{document}
+\begin{frame}
+\titlepage
+\end{frame}
+
+
+%%% Color slides for section headers: Use for colloquium version (The ones bewteen \iffals and \fi)
+
+\begin{transitionframe}
+  \begin{center}
+         { \Huge \textcolor{white}{Logistics of the recitation}}
+       \end{center}
+\end{transitionframe}
+
+
+
+
+\begin{frame}
+\frametitle{About me}
+\begin{wideitemize}
+\item Name: Seung-hun Lee (이승헌)
+\item 4th-year student in economics PhD program
+\item  Research: Development, Labor, Political economy (all of these involve applied econometrics and treatment effects taught in this part of Econometrics sequence)
+\item Feel free to reach out to me for things related to this class and more!
+ \end{wideitemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{How recitations will be organized}
+\begin{wideitemize}
+\item Location: 520 Mathematics Building
+\item Time: Mondays 11:00AM-12:30PM
+\item  Note that I intend to run the recitation for 80 - 90 minutes, depending on the rigor of the material. 
+\item Depending on the room availability, I will stay an extra 10-20 minutes to answer your questions about problem sets, concepts covered, and etc.
+ \end{wideitemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{My approach to recitations}
+\begin{wideitemize}
+\item  Focus on reviewing the concepts covered on the Tuesday and Thursday regular classes in the previous week.
+\item In particular, I will attempt to give you an intuition on what various econometric methods aim to achieve, discuss key results and proofs, and mention how such methods are applied in various literatures in Economics. \\
+\textit{(If there is demand, I am willing to incorporate different methods into the recitation.)}
+\item Key is to establish how one method stands in relation to other methods (how does one complement the other?)
+\item I TA-ed the same class two years ago. The materials are expected to be similar. For those who want to take a look, go to \href{https://github.com/seunghunlee918/phd_econometrics}{my Github repository (click here)}.
+ \end{wideitemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{What you should expect from me and the recitations}
+\begin{wideitemize}
+\item Post recitation notes by 10:00PM on Sundays (slides will be posted after recitation)
+\item Suggested problem set solutions will be posted (about 3 days after deadline)
+\item Goal: Help you get through Econometrics sequence. This means helping you achieve high grades to avoid certs (for Economics Ph.D. students) or  passing the course with a sufficient grade (other Ph.D. students).  
+\item While I am the one teaching the course, it will not be complete without you. Do not hesitate to ask questions, make suggestions at any time. I am here to help you all in any way I can. 
+
+ \end{wideitemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Office hour logistics}
+\begin{wideitemize}
+\item Location: Zoom (\href{https://columbiauniversity.zoom.us/j/96949225512?pwd=bTgwKytIVHpmNVloU0hNOEFxQ3J3UT09}{Click here to join})
+\item Time: Mondays 7:30PM - 8:30PM 
+\item If you can't make it on this time for whatever reasons, send me an \href{mailto:sl4436@columbia.edu}{email}
+\item I tend to use office hours to answer your questions on problem-solving (problem sets, past exams, etc) but you can bring in any questions.
+ \end{wideitemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Here are some references!}
+\begin{wideitemize}
+\item Primary resources are the lecture notes of the professors and Hansen (2021)
+\item I also make use of Angrist and Pischke (2009), Arellano (2003), Baltagi (2005), Cameron and Trivedi (2005), Baltagi (1999), Hayashi (2000), Imbens and Rubin (2015), and Wooldridge (2010) for additional references.
+\item For Statistics, I usually refer to Casella and Berger(2002) and Hogg et al.(2014).
+\item For Linear Algebra, I rely on Gockenbach(2010), Lang(1987), and Strang(2009).
+\item From time to time, I may use papers published in various journals to show how the methods are applied in research. Those papers will be cited as I go by. 
+ \end{wideitemize}
+\end{frame}
+
+\begin{transitionframe}
+  \begin{center}
+         { \Huge \textcolor{white}{Instrumental variables}}
+       \end{center}
+\end{transitionframe}
+
+\begin{frame}
+\frametitle{Setting up our notation}
+\begin{itemize}
+\item Assume that data generating process (DGP) looks like 
+\[
+y_i = x_i'\beta+e_i, \ x_i = \begin{pmatrix} x_{i1} \\ ... \\ x_{ik}\end{pmatrix}, \ i=1,...,n
+\]
+where $x_i\text{ and }\beta $ are both in $\mathbb{R}^k$ and $y_i$ and $e_i$ are scalars. 
+\item In a matrix notation, this can be written as
+\[
+y=X\beta+e, \ y = \begin{pmatrix} y_{1} \\ ... \\ y_{n}\end{pmatrix}\in\mathbb{R}^n, X = \begin{pmatrix} x_{1}' \\ ... \\ x_{n}'\end{pmatrix} \in\mathbb{R}^{n\times k}, e = \begin{pmatrix} e_{1} \\ ... \\ e_{n}\end{pmatrix}\in\mathbb{R}^n
+\]
+\item OLS estimator: $\hat{\beta}= \left(\sum_{i=1}^nx_ix_i'\right)^{-1}\left(\sum_{i=1}^nx_iy_i\right)$ or $(X'X)^{-1}(X'y)$
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Following assumptions are useful in proving key properties}
+\begin{itemize}
+\item[A1] $(y_i, x_i)$ are IID across $i$'s
+\item[A2] \textbf{Strict exogeneity}: $E(e_i|x_i)=0$. This implies \textbf{orthogonality} ($E(x_ie_i)=0$)
+\item[A3] \textbf{Identification}: $E(x_ix_i')=Q$ is a positive definite matrix (hereafter PD matrix)
+\item[A4] \textbf{Bounded moments}: $E||x_i^4||<\infty, E||y_i^4||<\infty$
+\item[A5] \textbf{Homoskedasticity}: Let $D=E(ee'|X)=\footnotesize{\begin{pmatrix} E(e_1^2|X) & E(e_1e_2|X)& ...\\ E(e_2e_1|X) & E(e_2^2|X) & ...\\ ...&...&...\\ ...&...&E(e_n^2|X)  \end{pmatrix}}$. \\Then, $E(e_i^2|X)=\sigma^2\ \forall i$ 
+\item[A6] \textbf{No autocorrelation}: From the $D$ matrix above, $E(e_ie_j|X)=0 \ \forall i\neq j$
+\item Note: \textbf{A5-A6} collectively is referred to as \textbf{spherical error variance}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Small and large sample properties}
+\begin{itemize}
+\item \textbf{Unbiasedness}: Under assumptions \textbf{A1-A2}, $E[\hat{\beta}|X]=\beta$
+\item \textbf{Variance of $\hat{\beta}$}:  $Var[\hat{\beta}|X]=(X'X)^{-1}X'DX'(X'X)^{-1}$ 
+\item \textbf{Consistency}: Under assumptions \textbf{A1-A3}, $\hat{\beta}\xrightarrow{p}\beta$
+\item \textbf{Limiting distribution of $\hat{\beta}$}:  Under assumptions \textbf{A1-A4}, the limiting distribution of $\hat{\beta}$ is characterized by $\sqrt{n}(\hat{\beta}-\beta)\xrightarrow{d}N(0,Q^{-1}\Omega Q^{-1})$ , where $\Omega = E(x_ix_i'e_i^2)$
+\end{itemize}
+\medskip
+$\to$ I put the detailed proof in my notes
+\end{frame}
+
+\begin{frame}
+\frametitle{Generalized least squares: Our variances may not be spherical!}
+\begin{itemize}
+\item We will write $D=\sigma^2\Sigma$ where $\Sigma$ is an $n$-dimensional matrix where off-diagonals may not be zero and diagonal elements may vary. 
+\item The matrix is still symmetric and positive definite, so there exists a $P\in\mathbb{R}^{n\times n}$ (not necessarily unique) satisfying
+\[
+D^{-1}= PP'
+\]
+\item We can `transform' our DGP
+\[
+Y=X\beta+e \implies \underbrace{P'Y}_{\tilde{Y}}=\underbrace{P'X}_{\tilde{X}}\beta+\underbrace{P'e}_{\tilde{e}}
+\]
+You can see that the following two conditions hold (back to spherical variance!)
+\begin{itemize}
+\item $E[\tilde{e}|\tilde{X}]=E[P'e|X]=P'E[e|X]=0$
+\item $E[\tilde{e}\tilde{e}'|\tilde{X}]=E[P'ee'P|X]=P'E[ee'|X]P=P'DP=I_n$
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Generalized least squares: Estimation and properties}
+\begin{itemize}
+\item  GLS estimators can be obtained by minimizing a weighted sum squred of residuals
+\[
+\hat{\beta}_{GLS} = \min_b (Y-Xb)'D^{-1}(Y-Xb) \implies \hat{\beta}_{GLS}=(X'D^{-1}X)^{-1}(X'D^{-1}Y)
+\]
+\item The unbiasedness and variances of GLS can be shown in a similar manner.
+\begin{block}{Variance of the GLS}
+\[
+\begin{aligned}
+Var[\hat{\beta}_{GLS}|X]&=Var[\hat{\beta}_{GLS}-\beta|X] (\because \beta\ \text{is nonrandom})\\
+ &=Var[(X'D^{-1}X)^{-1}X'D^{-1}e|X] \\
+ &=(X'D^{-1}X)^{-1}X'D^{-1}(E[ee'|X])D^{-1}X(X'D^{-1}X)^{-1} \\
+ &=(X'D^{-1}X)^{-1}X'D^{-1}DD^{-1}X(X'D^{-1}X)^{-1} =(X'D^{-1}X)^{-1}
+\end{aligned}
+\] 
+\end{block}
+\item Feasible GLS? We were assuming that we knew what $D$ looked like. 
+\begin{itemize}
+\item Not true in many cases (need stance on what the best estimate for $D$ is)
+\item $D$ becomes a random variable and affects the distribution and the efficiency
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{If measurement error exist, OLS estimate has attenuation bias}
+\begin{itemize}
+\item Suppose that the linear model we want to estimate is as follows
+\[
+y_i = {x_i}^{*'}\beta+e_i \ (\text{We assume }E({x_i}^{*}e_i)=0)
+\]
+\item However, we only observe $x_i=x_i^*+v_i$, where $E[v_i]=0, E[x_i^*v_i]=0, E[e_iv_i]=0$ 
+\item We end up with
+\[
+\begin{aligned}
+y_i &= (x_i-v_i)'\beta+e_i &=x_i'\beta \underbrace{-v_i'\beta+e_i}_{=u_i} \\
+\end{aligned}
+\]
+\item Then $E(x_iu_i)$ is as follows
+\[
+E(x_iu_i)=E[x_i(-v_i'\beta+e_i)]=E[(x_i^{*}+v_i)(-v_i'\beta+e_i)]=-E(v_iv_i')\beta
+\]
+So unless $\beta=0$, or $E(v_iv_i')=0$, $E(x_iu_i)\neq0$
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{How does the attenuation bias look like?}
+\begin{block}{Attenuation bias}
+With the above setup, the probability limit of the OLS estimator is
+\[
+\begin{aligned}
+\hat{\beta}_{OLS} &=\beta+E(x_ix_i')^{-1}E(x_iu_i)\\
+&=\beta-E(x_ix_i')^{-1}E(v_iv_i)\beta\\
+&=\beta-E[(x_i^*+v_i)(x_i^*+v_i)']^{-1}E(v_iv_i)\beta\\
+&=\beta-[E(x_i^*x_i^{*'})+E(v_iv_i')]^{-1}E(v_iv_i)\beta\\
+&=\frac{E(x_i^*x_i^{*'})}{E(x_i^*x_i^{*'})+E(v_iv_i')}\beta \ (\leq\beta)\\
+\end{aligned}
+\]
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{OLS estimator is unestimable in simultaneous equations}
+\begin{itemize} 
+\item Suppose you have ($e_i = (u_i \ v_i)'$ is IID, $E(e_i)=0, E(e_ie_i')=I_{2}$)
+\begin{gather*}
+q_i = \beta_1p_i+u_i \tag{Supply}\\
+q_i = -\beta_2p_i+v_i \tag{Demand}
+\end{gather*}
+\item The equilibrium of this system is 
+\[
+p_i = \frac{v_i-u_i}{\beta_1+\beta_2}, q_i = \frac{\beta_1v_i + \beta_2u_i}{\beta_1+\beta_2}
+\]
+So for both supply and demand equations, we have $E(p_iu_i)\neq0$ and $E(p_iv_i)\neq0$
+\item \textbf{Simultaneity bias}: When naively applying OLS to this equation, the result is as follows. 
+\[
+q_i=\beta^*p_i+\eta_i, \ E(p_i\eta_i)=0 \implies \hat{\beta}^*=\frac{E(p_iq_i)}{E(p_i^2)}=\frac{\beta_1-\beta_2}{2}
+\]
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Workaround: Find exogenous shock affecting one but not the other}
+\begin{itemize} 
+\item Let $z_i$ denote some exogenous shock to the demand equation (preference shock). 
+\item We write the two equations as 
+\begin{gather*}
+q_i = \beta_1p_i+u_i \tag{Supply}\\
+q_i = -\beta_2p_i+\beta_3z_i+v_i \tag{Demand}
+\end{gather*}
+\item Using a similar approach we employed, we can write
+\[
+\begin{aligned}
+p_i&=\frac{v_i-u_i}{\beta_1+\beta_2}+ \frac{\beta_3}{\beta_1+\beta_2}z_i\\
+q_i&=\frac{\beta_1v_i + \beta_2u_i}{\beta_1+\beta_2}+\frac{\beta_3\beta_1}{\beta_1+\beta_2}z_i\\
+\end{aligned}
+\]
+we have the endogenous variables in terms of exogenous variables (the reduced form). 
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Omitted variables may make OLS estimates inconsistent}
+\begin{itemize} 
+\item Let $y$: wage, $x$: education, $a$: innate ability and the DGP be
+\[
+y_ i = x_i\beta_1+a_i\beta_2+e_i, \ \ E(x_ie_i)=0, E(a_ie_i)=0
+\]
+\item IRL, we can only observe $(y_i, x_i)$ (what is innate ability anyway?), leaving us with 
+\[
+y_i=x_i\beta_1+u_i,\text{ where } u_i=a_i\beta_2 + e_i
+\] 
+\item Then $E(x_iu_i)= E(x_i(a_i\beta_2+e_i))=E(x_ia_i)\beta_2+0 = E(x_ia_i)\beta_2$
+\item Therefore, when 1)$x_i$ and $a_i$ are correlated and 2)$\beta_2\neq0$, $E[x_iu_i]\neq0$
+\item The probability limit of OLS estimate of $x_i$ would be
+\[
+\hat{\beta}_{OLS}=\beta_1+E(x_i^2)^{-1}E(x_iu_i)=\beta_1+E(x_i^2)^{-1}E(x_ia_i)\beta_2
+\]
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Setting up for the IV estimation}
+\begin{itemize} 
+\item Assume that the data generating process is as follows
+\[
+y_i = x_{1i}'\beta_1+x_{2i}'\beta_2+e_i
+\]
+where $E(x_{1i}e_i)=0, E(x_{2i}e_i)\neq0$, and $\dim(x_{1i})=k_1, \dim(x_{2i})=k_2,\ k_1+k_2=k$
+\item Let $z_i\in\mathbb{R}^l = \begin{pmatrix}z_{1i} \\ z_{2i}\end{pmatrix}=\begin{pmatrix}x_{1i} \\ z_{2i}\end{pmatrix}$, where $\dim(z_{2i})=l-k_1$ and $l-k_1\geq k_2$.
+\item $z_i$ is a valid IV if
+\begin{itemize}
+\item \textbf{Exogeneity}: $E(z_ie_i)=0$
+\begin{itemize}
+\item \textbf{Exclusion}: $E(z_iy_i)=\beta_1E(z_ix_{1i})+\beta_2E(z_ix_{2i})$ ($z_i$ should impact $y_i$ through $x_{1i}$ and $x_{2i}$ only)
+\end{itemize}
+\item \textbf{Relevancy}: $rank[E(z_ix_i')]=\dim(x_i)=k$
+\item \textbf{PD}: $E(z_iz_i')>0$ (for inverse matrices in 2SLS to be defined)
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{IV in reduced form method}
+\begin{itemize} 
+\item We can write the reduced form relationship for the $X_2$ variables as
+\[
+X_2 = X_1\pi_{21} + Z_2\pi_{22}+v_2 = Z\pi_2+v_2
+\]
+$\pi_2$ is a linear projection of $X_2$ onto $Z$ $\left(E[Z'Z]^{-1}E[Z'X_2]\right)$ and we have $E[Z'v_2]=0$
+\item With this, the reduced form for $Y$ is
+\[
+\begin{aligned}
+Y&=X_1\beta_1+X_2\beta_2+e\\
+&=X_1\beta_1+(X_1\pi_{21} + Z_2\pi_{22}+v_2)\beta_2+e\\
+&=X_1(\beta_1+\pi_{21}\beta_2)+Z_2\pi_{22}\beta_2+e+v_2\beta_2\\
+&=Z_1\pi_{11}+Z_2\pi_{12}+v_1 = Z\pi_1+v_1
+\end{aligned}
+\]
+where $E[Z'v_1]=0$ based on our IV conditions and reduced form setup for $X_2$. 
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Bridging the structural and reduced forms}
+\begin{itemize} 
+\item From the above setup, we can also write
+\[
+\pi_1 = \begin{pmatrix}\pi_{11} \\ \pi_{12}\end{pmatrix} =\underbrace{\begin{pmatrix} I_{k_1} & \pi_{21}\\ 0 & \pi_{22} \end{pmatrix}}_{=\bar{\Gamma}}\underbrace{\begin{pmatrix}\beta_{1} \\ \beta_{2}\end{pmatrix}}_{=\beta}
+\]
+This is the exact relation between the $l$ reduced form and $k$ structural parameters. 
+\item If $rank(\bar{\Gamma})=k$ ($\pi_{22}\neq0$), we can solve for $\beta$ using the least squares
+\[
+\beta= (\bar{\Gamma}'\bar{\Gamma})^{-1}\bar{\Gamma}'\pi_1 
+\]
+\item In practice, IV estimators in this context can be obtained by the indirect least squares
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{In $l=k$, using moment condition is straightforward}
+\begin{itemize} 
+\item The structural equation and the moment conditions we will use are
+\[
+y_i = x_i'\beta+e_i \ (E[z_ie_i]=0, E[x_ie_i]\neq0)
+\]
+\item We replace $e_i$ in the moment condition using the structural equation and get
+\[
+E[z_ie_i]=0 \iff E[z_i(y_i-x_i'\beta)]=0 \iff E[z_iy_i]-E[z_ix_i'\beta]=0
+\]
+\item This gives us the result that (relevancy and square matrix!)
+\[
+\beta=\left(E[z_ix_i']\right)^{-1}E[z_iy_i]
+\]
+\item The IV estimator is a sample analogue of the above, or
+\footnotesize{\[
+\hat{\beta}_{IV}=\left(\frac{1}{n}\sum_{i=1}^nz_ix_i'\right)^{-1}\frac{1}{n}\sum_{i=1}^nz_iy_i = (Z'X)^{-1}Z'y
+\] }\normalsize
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{IV estimators are consistent!}
+\begin{block}{Consistency}
+Assume that $Z$ is a valid IV
+\[
+\begin{aligned}
+(Z'X)^{-1}Z'y&=(Z'X)^{-1}Z'(X\beta+e)\\
+&=\beta+(Z'X)^{-1}Z'e\\
+&=\beta+\underbrace{\left(\frac{Z'X}{n}\right)^{-1}}_{\xrightarrow{p}Q_{ZX}^{-1}}\underbrace{\left(\frac{Z'e}{n}\right)}_{\xrightarrow{p}0}
+\end{aligned}
+\]
+Thus, $\hat{\beta}_{IV}\xrightarrow{p}\beta$
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{IV estimators are asymptotically normal!}
+\begin{block}{Asymptotic distribution: $\sqrt{n}(\hat{\beta}_{IV}-\beta)\xrightarrow{d}N(0,Q_{ZX}^{-1}\Omega Q_{ZX}^{-1})$ with  $\Omega=E[z_iz_i'e_i^2]$ }
+Note that 
+\[
+\sqrt{n}(\hat{\beta}_{IV}-\beta) = \left(\frac{1}{n} \sum_{i=1}^n z_ix_i'\right)^{-1}\left(\frac{1}{\sqrt{n}}\sum_{i=1}^nz_ie_i\right)
+\]
+\begin{itemize}
+\item We can obtain $\frac{1}{\sqrt{n}}\sum_{i=1}^nz_ie_i\xrightarrow{d}N(0,\Omega)$ using the central limit theorem. 
+\item $\frac{1}{n} \sum_{i=1}^n z_ix_i'\xrightarrow{p}Q_{ZX}^{-1}$ by weak law of large numbers. 
+\item By Slutsky theorem $\sqrt{n}(\hat{\beta}_{IV}-\beta) \xrightarrow{d}Q_{zx}^{-1}N(0,\Omega)=N(0,Q_{ZX}^{-1}\Omega Q_{ZX}^{-1}) $
+\item Under homoskedasticity, we can get that $\Omega= \sigma^2Q_{ZZ}$ and that the finite sample variance can be characterized as 
+\[
+\frac{1}{n}\widehat{V}_{\hat{\beta}_{IV}}=\hat{\sigma}^2(Z'X)^{-1}(Z'Z)(Z'X)^{-1}
+\]
+\end{itemize}
+\end{block}
+\end{frame}
+%%%%%%%%%%%
+\end{document}
