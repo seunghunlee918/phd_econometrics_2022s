@@ -1,0 +1,524 @@
+\documentclass[aspectratio=169]{beamer}
+
+\mode<presentation>
+\usetheme{Boadilla}
+\definecolor{redback}{RGB}{140,0,0}
+\definecolor{blue}{RGB}{30,90,205}
+\definecolor{red}{RGB}{213,94,0}
+\definecolor{green}{RGB}{0,128,0}
+\setbeamercolor{title}{fg=redback}
+\setbeamercolor{frametitle}{fg=redback}
+\setbeamercolor{block title}{bg=redback, fg=white}
+\setbeamercolor{block body}{bg=white}
+\setbeamercolor{structure}{fg=redback}
+\setbeamercolor{item projected}{fg=white}
+\setbeamercolor{item}{fg=redback}
+\setbeamercolor{subitem}{fg=redback}
+\setbeamercolor{section in toc}{fg=redback}
+\setbeamercolor{description item}{fg=redback}
+\setbeamercolor{caption name}{fg=redback}
+\setbeamercolor{button}{bg=redback, fg=white}
+\setbeamercolor{caption name}{fg=redback}
+\usepackage{graphics}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usepackage{bbm}
+\usetikzlibrary{decorations.pathreplacing}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{multirow, makecell}
+\usepackage{float}
+\usepackage{fancyvrb}
+\usepackage{kotex}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{adjustbox}
+\usepackage{hyperref}
+\usepackage{threeparttable}
+\usepackage[scaled=0.92]{helvet}
+\usepackage[default]{lato} %If I want a twist
+\newenvironment{wideitemize}{\itemize\addtolength{\itemsep}{10pt}}{\enditemize}
+\newenvironment{wideenumerate}{\enumerate\addtolength{\itemsep}{10pt}}{\endenumerate}
+\newenvironment{widedescription}{\description\addtolength{\itemsep}{10pt}}{\enddescription}
+\hypersetup{
+colorlinks=true,
+linkcolor=redback,
+filecolor=green, 
+urlcolor=blue,
+}
+\beamertemplatenavigationsymbolsempty
+\setbeamercolor{author in head/foot}{bg=white, fg=redback}
+\setbeamercolor{title in head/foot}{bg=white, fg=redback}
+\setbeamercolor{date in head/foot}{bg=white, fg=redback}
+\setbeamercolor{section in head/foot}{bg=white, fg=redback}
+\setbeamercolor{page number in head/foot}{bg=white, fg=redback}
+\setbeamercolor{headline}{bg=redback}
+\setbeamertemplate{footline}{
+    \leavevmode%
+    \hbox{%
+        \begin{beamercolorbox}[wd=.333333\paperwidth,ht=2.25ex,dp=1ex,center]{date in head/foot}%
+            \usebeamerfont{date in head/foot}\insertshortdate
+        \end{beamercolorbox}%
+        \begin{beamercolorbox}[wd=.444444\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+            \usebeamerfont{title in head/foot}\insertshorttitle
+        \end{beamercolorbox}%
+        \begin{beamercolorbox}[wd=.222222\paperwidth,ht=2.25ex,dp=1ex,center]{page number in head/foot}%
+            \usebeamerfont{page number in head/foot} \insertframenumber{} / \inserttotalframenumber
+        \end{beamercolorbox}}%
+        \vskip0pt%
+    }
+
+\setbeamertemplate{section in toc}[sections numbered]
+\setbeamertemplate{subsection in toc}{\leavevmode\leftskip=3em\rlap{\hskip-1.75em\inserttocsectionnumber.\inserttocsubsectionnumber}\inserttocsubsection\par}
+\setbeamerfont{subsection in toc}{size=\footnotesize}
+
+\newenvironment{transitionframe}{\setbeamercolor{background canvas}{bg=redback}\setbeamertemplate{footline}{} \begin{frame}}{\end{frame}}
+\newcommand{\ROM}[1]
+    {\MakeUppercase{\romannumeral #1}}
+    \DeclareMathOperator*{\plim}{plim}
+\makeatletter
+\let\@@magyar@captionfix\relax
+\makeatother
+
+
+\title[Recitation 10 (Intro to Econometrics \ROM{2})]{Recitation 10: Semiparametrics, and treatment effects} % Change this regularly
+\author[]{Seung-hun Lee }
+\institute[]{Columbia University \\ Introduction to Econometrics \ROM{2} Recitation}
+
+\date[April 11th, 2022]{April 11th, 2022}
+
+\begin{document}
+\begin{frame}
+\titlepage
+\end{frame}
+
+
+%%% Color slides for section headers: Use for colloquium version (The ones bewteen \iffals and \fi)
+
+\begin{transitionframe}
+  \begin{center}
+         { \Huge \textcolor{white}{Semiparametrics}}
+       \end{center}
+\end{transitionframe}
+
+\begin{frame}
+\frametitle{Happy medium between nonparametrics and parametrics}
+\begin{itemize}
+\item Key is the tradeoff between robustness and efficiency
+\begin{itemize}
+\item Nonparametrics is robust: CAN-ness of these estimation does not depend on getting the assumption about specification right, but converges very slowly 
+\item Parametrics does better in efficiency: Always converge to the true distribution at a nice speed of $\sqrt{n}$ but vulnerable to specification assumption
+\end{itemize}
+\item Where does semiparametrics stand
+\begin{itemize}
+\item By design, contains both semiparametrics and parametrics
+\item Robust in larger class of distribution than in parametric estimation but not as much as in nonparametrics
+\item Contains part of the estimation that is as efficient as parametrics, but also has inefficient parts arising from nonparametric aspects
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Partially linear models: Split equation to parametric/nonparametrics}
+\begin{itemize}
+\item Partition the covariates into two unoverlapping spaces - $X$ and $Z$, where $E[\epsilon|X,W]=0$. 
+\item We work with the DGP of the following form
+\[
+y_i = X_i\beta + g(Z_i)+\epsilon_i 
+\]
+\item Parameter of interest is: $\beta$ and $g(\cdot)$
+\item Idea for $\beta$: Use the fact that
+\begin{align*}
+E[y_i|Z_i]&=E[X_i|Z_i]\beta + E[g(Z_i)|Z_i]+E[\epsilon_i|Z_i]\\
+&=E[X_i|Z_i]\beta + g(Z_i)+E[\epsilon_i|Z_i]\\
+&=E[X_i|Z_i]\beta + g(Z_i)+E[E[\epsilon_i|X_i,Z_i]|Z_i] \\
+&= E[X_i|Z_i]\beta +g(Z_i)\\
+y_i-E[y_i|Z_i]&= \{X_i-E[X_i|Z_i]\}\beta +\epsilon_i
+\end{align*}\par
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{3-steps approach}
+\begin{itemize}
+\item We follow this procedure
+\begin{enumerate}
+\item Nonparametrically estimate $E[X_i|Z_i]$ and $E[y_i|Z_i]$. Then define $\widehat{X}_i=X_i-\widehat{E}[X_i|Z_i]$ and $\widehat{Y}_i = y_i-\widehat{E}[y_i|Z_i]$, where $\widehat{E}$ are nonparametric estimators
+\item Regress $\widehat{Y}$ onto $\widehat{X}$ to get an estimate of $\beta$
+\item We can estimate $g(\cdot)$ by nonparametrically regressing $y_i-X_i\hat{\beta}$ onto $Z_i$
+\end{enumerate}
+\item Conditions for identification
+\begin{itemize}
+\item $\widehat{X}$ needs to be a full column rank matrix
+\item This is broken down when any linear combination of $X\beta$ is a deterministic function of variables in $Z$, or if elements of $X$ is perfectly predicted by $Z$
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{$\beta$ estimates can perform as well as parametrics}
+\begin{itemize}
+\item It converges at rate $n^{-1/2}$ if $\dim(Z_i)<4$
+\item Why? Kernel averaging
+\begin{itemize}
+\item Since $\hat{\beta} = (\widehat{X}'\widehat{X})^{-1} (\widehat{X}'\widehat{Y})$, we have sums like
+\[
+\begin{aligned}
+X'\widehat{E}[Y|Z]&=\sum_{i}X_i\widehat{E}[Y|Z=Z_i]=\sum_{i}X_i\frac{\sum_jK\left(\frac{Z_j-Z_i}{h}\right)Y_j}{\sum_jK\left(\frac{Z_j-Z_i}{h}\right)}\\
+\end{aligned}
+\]
+\item $\hat{\beta}$ involves averaging this over all possible values of $X_i$ with$\frac{1}{n}\sum_{i}X_i\frac{\sum_jK\left(\frac{Z_j-Z_i}{h}\right)Y_j}{\sum_jK\left(\frac{Z_j-Z_i}{h}\right)}$
+\item This is known to reduce the nonparametric estimation variance by factors of $n$
+\end{itemize}
+\item It is better to undersmoothe here and get a nonparametric root mean squared error (or standard error) of order lower than $n^{\frac{-4}{4+d}}$ for $\widehat{X}'\widehat{Y}$
+\item For $d<4$, this is faster than $n^{-\frac{1}{2}}$
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{$g(\cdot)$ resembles nonparametrics}
+\begin{itemize}
+\item Slower convergence rate, which becomes even slower with more dimensions of $Z_i$. 
+\item This part is done by nonparametrically regressing $y_i-X_i\hat{\beta}$ onto $Z_i$
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Single index models: Parametrics used for dimension reduction}
+\begin{itemize}
+\item In a single index model, the conditional mean function $E[Y|X]$ is written as
+\[
+E[Y|X]=F_0(X\beta)
+\]
+where the unknowns are the $\beta$ parameter in the index $X\beta$ and $F_0$ distribution
+\item Conceptual approach for $\beta$: Use the MRS idea
+\begin{itemize}
+\item Let $X_j,X_k$ be the two continuously distributed variables in $X$ and that $m(x)\equiv E[Y|X]$.
+\item Then what we can get is the following relation
+\[
+\frac{m_j'(X)}{m_k'(X)} = \frac{F_0'(X\beta)\beta_j}{F_0'(X\beta)\beta_k}=\frac{\beta_j}{\beta_k}
+\]
+\item We can identify $\beta_j$ up to a scale: Pin down one $\beta_j$ to 1 and calculate others using the ratio
+\item Dependent on kernel estimation of conditional mean and choice of variable to normalize
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Density weighted average derivative estimator}
+\begin{itemize}
+\item It has the form
+\[
+\hat{\beta} = \frac{1}{n}\sum_{i=1}^n y_i\hat{f}'_n(X_i)
+\]
+where $\hat{f}_n$ is the density estimate of $X$ and $\hat{f}'_n(X_i)$ is the estimate for the derivative of $f$.
+\item Thus, we can write 
+\[
+\hat{\beta} = \frac{1}{n(n-1)}\sum_{i=1}^n y_i\frac{1}{h^{\dim(X)+1}} \sum_{j\neq i}K'\left(\frac{X_i-X_j}{h_n}\right)
+\]
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Justifying density weighted average derivative estimator}
+\begin{itemize}
+\item Since $\frac{m_j'(X)}{m_k'(X)} =\frac{\beta_j}{\beta_k}$ for all $X$, $\frac{\int m_j'(x)g(x)dx}{\int m_k'(x)g(x)dx}=\frac{\int \beta_jg(x)dx}{\int \beta_kg(x)dx}$
+\item Using integration by parts, we can write
+\[
+\begin{aligned}
+\int m_j'(x)g(x) dx &= m(x)g(x)]^{\infty}_{-\infty} - \int m(x)g_j'(x)dx \\
+&=  - \int m(x)g_j'(x)dx \ (\because m(\cdot) \ \text{continous for all components of $x$.})\\
+\end{aligned}
+\]
+\item Here, we take $g(x)= -\frac{f^2(x)}{2}$. This results in $g'(x) =- f(x)f'(x)$ and 
+\[
+- \int m(x)g_j'(x)dx = \int m(x)f'(x)f(x)dx = E[m(x)f'(X)]=E[E[Y|X]f'(X)]=E[Yf'(X)]
+\]
+\item DWADE is the sample analogue
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{$F_0$ is the nonparametric part}
+\begin{itemize}
+\item To estimate $F_0$, calculate the index $\widehat{Z} = X\hat{\beta}$. 
+\item Then, we nonparametrically estimate $Y$ onto $\widehat{Z}$ to obtain $\widehat{F}$, which estimate $F_0$. 
+\item This is a purely nonparametrical part, which results in slower convergence. 
+\item However, the index allows us to effectively reduce the dimensions involved in this step to 1, avoiding much of the curse of dimensionality. 
+
+\end{itemize}
+\end{frame}
+
+\begin{transitionframe}
+  \begin{center}
+         { \Huge \textcolor{white}{Treatment effect}}
+       \end{center}
+\end{transitionframe}
+
+
+\begin{frame}
+\frametitle{We shift our attention to causal interpretation}
+\begin{itemize}
+\item Now, our interest is in finding out whether some $X$ variable \textbf{causes} $Y$
+\item Suppose that you find that $cov(X,Y)\neq0$. This can happen because
+\begin{itemize}
+\item $X$ do cause $Y$, which is good for us. But..
+\item $Y$ could also cause $X$. So there is a reverse causality bias here
+\item $Z$ mutually affects $X$ and $Y$. This is an omitted variable bias and leads to nonzero correlation even if $X$ and $Y$ has no connection whatsoever. 
+\end{itemize}
+\item One key to causal relation is treatment assignment:
+\begin{itemize}
+\item \textbf{Random Assignment}: Assignment to the treatment and control is determined by chance, rare in social science except  RCTs, as people can voluntarily opt in and out of treatment. 
+\item \textbf{Selection on Observables}: The treatment assignment is effectively random once we condition on some observable covariates (ignorability, unconfoundedness assumptions)
+\item \textbf{Selection on Unobservables}: The assignment depends on unobservables, so we cannot break down the dependence structure of assignment using observed variables. \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Observations vs Potential outcomes}
+\begin{itemize}
+\item  Define a variable $D_i$ indicating treatment assignment s.t.
+
+\[
+D_i = \begin{cases} 1 & \text{If treated} \\ 0 & \text{If not treated}\end{cases}
+\]
+\item $i$ indexes the unit of the treatment - an individual, household,  county, firm, and etc
+\item Outcome we observe can be broken into a sum of counterfactual potential outcomes
+\begin{gather*}
+y_i = D_iy_i(1) + (1-D_i)y_i(0)
+\end{gather*}
+Where we have
+\begin{itemize}
+\item $y_i$: The observed outcome for \emph{every} $i$
+\item $y_i(1), y_i(0)$: Outcome for those whose $D_i=1$ and $0$, respectively
+\item Counterfactual? If an $i$ has $y_i(1)$, there is no $y_i(0)$ - fundamental problem of missing data
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Outcome of interest: The treatment effect (TE)}
+\begin{itemize}
+\item Ideally: $TE_i=y_i(1)-y_i(0)$
+\item TE averaged over those who share the common covariate value
+\[
+TE(x) = E(TE_i|X_i=x) = E(y_i(1)-y_i(0)|X_i=x)
+\]
+\item TE averaged over population of interest (ATE)
+\[
+ATE=E(TE_i)=E(y_i(1)-y_i(0))
+\]
+\item Others: ATE for the treated/untreated, intent-to-treat (ITT,  in case of imperfect treatment compliance)
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Fundamental problem of missing data}
+\begin{itemize}
+\item Take the ATE for example. We write
+\begin{align*}
+E[y_i(1)-y_i(0)] & = E[y_i(1)]-E[y_i(0)]\\
+&=\{\Pr(D_i=1)E[y_i(1)|D_i=1]+(1-\Pr(D_i=1))E[y_i(1)|D_i=0]\}\\
+&-\{\Pr(D_i=1)E[y_i(0)|D_i=1]+(1-\Pr(D_i=1))E[y_i(0)|D_i=0]\}
+\end{align*}
+\item We can get what $E[y_i(1)|D_i=1]$ and $E[y_i(0)|D_i=0]$ are from the data. This is because 
+\begin{gather*}
+E[y_i|D_i=1]=E[1\cdot y_i(1)-(1-1)\cdot y_i(0)|D_i=1]=E[y_i(1)|D_i=1]\\
+E[y_i|D_i=0]=E[0\cdot y_i(1)-(1-0)\cdot y_i(0)|D_i=0]=E[y_i(0)|D_i=0] \tag{\text{TE}}\label{TE}
+\end{gather*}
+\item We cannot do the same for $E[y_i(1)|D_i=0]$ and $E[y_i(1)|D_i=0]$.  
+\item We are forced to make an assumption on the things that we cannot observe. 
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Random assignment: Untreated and treated are practically identical!}
+\begin{itemize}
+\item Formally, we write
+\[
+(y_i(0), y_i(1))\perp \!\!\! \perp D_i \ \tag{\text{RA}}\label{RA}
+\]
+\item This implies that (similarly for $E[y_i(0)]$)
+\[
+E[y_i(1)]=E[y_i(1)|D_i=1]=E[y_i(1)|D_i=0]
+\]
+\item With this, 
+\small{\begin{gather*}
+E[y_i|D_i=1]=E[y_i(1)|D_i=1]=E[y_i(1)|D_i=0],\ \  E[y_i|D_i=0]=E[y_i(0)|D_i=0]=E[y_i(0)|D_i=1]
+\end{gather*}}\normalsize
+\item ATE is now
+\[
+\begin{aligned}
+E[y_i(1)-y_i(0)]&=E[y_i(1)]-E[y_i(0)]\\
+&=E[y_i(1)|D_i=1]-E[y_i(0)|D_i=0] \ (\because RA)\\
+&=E[y_i|D_i=1]-E[y_i|D_i=0] \ (\because TE)
+\end{aligned}
+\]
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Random assignment: ATE obtainable with OLS}
+\begin{itemize}
+\item We can estimate ATE by mapping $E[y_i(1)]$ to $E[y_i|D_i=1]$, $E[y_i(0)]$ to $E[y_i|D_i=0]$. 
+\item We can obtain this using many methods, even nonparametric. 
+\item Even an OLS would get us this estimate; Take the following setup ($E[e_i|D_i]=0$)
+\[
+y_ i = \beta_0 + \beta_1 D_i+e_i
+\]
+\item In the above context
+\begin{gather*}
+E[y_i|D_i=0]=\beta_0,\  E[y_i|D_i=1]=\beta_0+\beta_1 \\
+\implies E[y_i|D_i=1] - E[y_i|D_i=0] = \beta_1
+\end{gather*}
+\item This implies that the ATE can be derived by estimating $\beta_1$ with a simple OLS.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Conditional Independence: Controlling for $X_i$}
+\begin{itemize}
+\item Conditional on $X_i$, the outcomes and $D_i$ are independent. 
+\[
+ (y_i(0), y_i(1)) \perp \!\!\! \perp D_i|X_i \ \tag{\text{CIA}}\label{CIA}
+\]
+\item Alternatively, write 
+\[
+y_i(d)=\mu(X_i,d)+\epsilon_i(d),  \ \ E[\epsilon_i(d)|X_i]=0  \ \forall d \in \{0,1\}
+\]
+\item The treatment assignment follows $D_i = \mathbb{I}[u_i<p(X_i)]$, 
+where $p(X_i)\in(0,1)$ is propensity score (overlap!), $[u_i<p(X_i)]$ determines size of the treatment region
+\item This gets us 
+\[
+(\epsilon_i(1), \epsilon_i(0))\perp \!\!\! \perp u_i|X_i \tag{\text{CIA2}}\label{CIA2}
+\]
+unobserved assignment element is independent of unobserved outcome errors once $X_i$'s are controlled
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Treatment effect for $X_i=x$}
+\begin{itemize}
+\item $TE(x)=\mu(x,1)-\mu(x, 0)$
+\item Using CIA2 assumption, we can write 
+\small{\[
+\begin{aligned}
+E[y_i|1, x]-E[y_i|0, x]&=E[\mu(x,1)+\epsilon_i(1)|1, x]-E[\mu(x,0)+\epsilon_i(0)|0, x]\\
+&=E[\mu(x,1)|1, x]+E[\epsilon_i(1)|1, x]-E[\mu(x,0)|0, x]-E[\epsilon_i(0)|0, x]\\
+&=\mu(x,1)+E[\epsilon_i(1)|x]-\mu(x,0)-E[\epsilon_i(0)|x] \ (\because CIA2)\\
+&=\mu(x,1)-\mu(x,0) \ (\because  E[\epsilon_i(d)|X_i]=0  \ \forall d)
+\end{aligned}
+\]}\normalsize
+\item If we stick to CIA, we get 
+\small{\begin{align*}
+E[y_i(1)-y_i(0)|X_i=x] &= E[y_i(1)|X_i=x]- E[y_i(0)|X_i=x]\\
+&=(\Pr(1|x)\cdot E[y_i(1)|1,x]+(1-\Pr(1|x))E[y_i(1)|0,x])\\
+&-(\Pr(1|x)\cdot E[y_i(0)|1,x]+(1-\Pr(1|x))E[y_i(0)|0,x])\\
+&=  E[y_i(1)|1,x]- E[y_i(0)|0,x] \ (\because CIA) \\
+&=  E[y_i|1, x]-E[y_i|0, x]
+\end{align*}}\normalsize
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Estimating $TE(x)$}
+\begin{itemize}
+\item If CIA condition holds, $TE(x)$ can be easily estimated by
+\[
+\hat{\mu}(1,x)-\hat{\mu}(0,x)
+\]
+\item CIA assumption allows us to map $ E[y_i(1)|X_i=x]$ to $ E[y_i|D_i=1, X_i=x]$ and $E[y_i(0)|X_i=x]$ to $ E[y_i|D_i=0, X_i=x]$
+\item This can be done nonparametrically or even with some OLS with controls. Write
+\[
+y_ i =\beta_0+\beta_1D_i+X_i\gamma+e_i
+\]
+where $X_i$ is a set of controls. Assuming $E[e_i | D_i,X_i]=0$, we get
+\begin{gather*}
+E[y_i|D_i=0, X_i=x]=\beta_0+x\gamma,\  E[y_i|D_i=1, X_i=x]=\beta_0+\beta_1+x\gamma \\
+\implies E[y_i|D_i=1, X_i=x] - E[y_i|D_i=0, X_i=x] = \beta_1
+\end{gather*}
+So $\beta_1$ captures our $TE(x)$. 
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Inverse probability weighting: More efficient version}
+\begin{itemize}
+\item The steps are as follows
+\begin{enumerate}
+\item Estimate the propensity score $p(X_i)$ by computing (nonparametrically, or parametrical methods such as LPM/logit/probit)
+\[
+\hat{p}_n(X_i)=\Pr(D_i=1|X_i=x)
+\]
+\item Use the following formula to estimate $E(TE(x)|x\in A)$: 
+\[
+\frac{\sum_{D_i=1,x_i\in A}a_iy_i}{\sum_{D_i=1,x_i\in A}a_i}- \frac{\sum_{D_i=0,x_i\in A}b_iy_i}{\sum_{D_i=0,x_i\in A}b_i}
+\]
+where $a_i=\frac{1}{\hat{p}_n(x_i)}, b_i=\frac{1}{1-\hat{p}_n(x_i)}$. $a_i$  puts more weight on the least likely treated (vice versa for $b_i$) and balances the distribution out, leading to lesser variance. 
+\end{enumerate}
+\item An alternative, but more summation friendly version is in the notes!
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Doubly robust estimator: Safety net}
+\begin{itemize}
+\item We use this setup
+\[
+\Psi=\mu(1,X)-\mu(0,X)+\frac{D}{p(X)}(y(1)-\mu(1,X))-\frac{1-D}{1-p(X)}(y(0)-\mu(0,X))
+\]
+\item Slight deviation from the class notes: Justifiable and easier for intuition (also useful)
+\begin{align*}
+D_iy_i& = D_i(D_iy_i(1)+(1-D_i)y_i(0))=D_iy_i(1)\\
+(1-D_i)y_i&=(1-D_i)(D_iy_i(1)+(1-D_i)y_i(0))=(1-D_i)y_i(0)
+\end{align*}
+\item Key is that $E[\Psi|X=x]=TE(x)=E[TE_i|X=x]$ if just one of the two conditions hold
+\begin{enumerate}
+\item $p(x)=\Pr(D=1|X=x)$
+\item $\mu(d,x)=E[y(d)|X=x]$ for $d\in\{0,1\}$
+\end{enumerate}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Consistency of just one parameter is enough!}
+\begin{itemize}
+\item We can see this from
+\small{\[
+\begin{aligned}
+E[\Psi|X=x]&=\mu(1,x)-\mu(0,x)+\frac{E[D|x]}{p(x)}(E[y(1)|x]-\mu(1,x))-\frac{1-E[D|x]}{1-p(x)}(E[y(0)|x]-\mu(0,x))\\
+\end{aligned}
+\]}\normalsize
+\item If condition 1 holds, we have $p(x)=\Pr(D=1|X=x)=E[D|x]$ so $E[\Psi|X=x]$ reduces to $E[y(1)|x]-E[y(0)|x]=E[y(1)-y(0)|x]$. 
+\item If condition 2 holds, we have $E[y(1)|x]=\mu(x,1)$, and $E[y(0)|x]=\mu(x,0)$. Thus $E[\Psi|X=x]=\mu(1,x)-\mu(0,x)$. 
+\item This estimator is safer in the sense that even if one of the two is misspecified, we can still back out a consistent estimator.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Matching: Find an observationally equivalent $y_i$ from the other arm}
+\begin{itemize}
+\item Impute $Y_i(0)$ for those in $D_i=1$ and $Y_i(1)$ for those in $D_i=0$ based on closest match of covariates
+\item General: To find $k$-closest neighbors for unit $i$ in $D_i=0$, we find $k$ individuals in $D_i=1$ that has close traits ($X_i$) to individual $i$ based on smallest values of $||x_j - x_i||$
+\item Construct a counterfactual $Y_i(1)$ by taking a (weighted) average over the $Y_i$'s of the $k$ individuals found in the other group
+\item The treatment effect would than be $Y_i(1) -Y_i$,
+\item Note: Overlap is especially crucial! If $X_i$ determines the treatment assignment, avoid using this in finding the neighbors
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{RCT examples: So many!}
+\begin{itemize}
+\item There are many RCTs you can find, especially in (micro)development and behavioral economics conducting field/lab-in-the-field/lab expermients
+\begin{itemize}
+\item See Kremer, Miguel (2004 ECMA) on how deworming treatment affects education and health (and what to do for dealing with treatment externalities)
+\item Many anti-poverty/personnel programs and are assessed in the field experiment: See Baird et al (2011 QJE, in the notes) or Bandiera et al (2021 QJE, Michael and Andrea are coauthors here)
+\item For those interested in theory (especially information economics and preference formation): Experiments on how echo-chamber affects opinions, check Di Tella et al (2019 NBER WP, in the notes)
+\end{itemize}
+\item Always clarify the balance of covariates between treated and the untreated: Ideal result is a balance that is 'as good as random'. 
+\end{itemize}
+\end{frame}
+%%%%%%%%%%%
+\end{document}
