@@ -1,0 +1,211 @@
+\documentclass[12pt]{article}
+\usepackage{geometry}
+\geometry{letterpaper, left=22.5mm, right=22.5mm, top=30mm, bottom=30mm}
+\geometry{letterpaper}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{framed}
+\usepackage{tikz}
+\usepackage{mathpazo}
+%\usepackage{charter}
+%\usepackage{newcent}
+\usepackage{indentfirst}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{makecell}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usetikzlibrary{trees}
+\pagestyle{fancy}
+\usepackage{amsthm}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\theoremstyle{property}
+\newtheorem{property}{Property}[section]
+\theoremstyle{assumption}
+\newtheorem{assumption}{Assumption}[section]
+\theoremstyle{example}
+\newtheorem{example}{Example}[section]
+\theoremstyle{comment}
+\newtheorem{comment}{Comment}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\usepackage{lastpage}
+\usepackage{wrapfig}
+\usepackage{hyperref}
+\usepackage{subcaption}
+\usepackage{setspace}
+\hypersetup{
+colorlinks=true,
+linkcolor=black,
+filecolor=green, 
+urlcolor=blue,
+}
+\newcommand{\ROM}[1]
+    {\MakeUppercase{\romannumeral #1}}
+\fancyhead[L]{Econometrics \ROM{2}: Bonus}%change each reci
+\fancyhead[R]{Spring 2022}
+\fancyfoot[C]{\thepage \hspace{1pt} / \pageref{LastPage}}
+
+\fancypagestyle{firstpage}{%
+\fancyhf{}%
+\renewcommand{\headrulewidth}{0mm}%
+  \fancyfoot[C]{\thepage \hspace{1pt} / \pageref{LastPage}}
+}
+%change title each rec
+\title{Introduction to Econometrics \ROM{2}: FWL}
+
+\begin{document}
+\linespread{1.25}
+\onehalfspacing
+
+\author{Seung-hun Lee\footnote{Contact me at \href{mailto:sl4436@columbia.edu}{sl4436@columbia.edu} if you spot any errors or have suggestions on improving this note.}}
+\date{January 24th, 2022}
+\maketitle
+\thispagestyle{firstpage}
+
+%%%%%%%%%%%%%%%%%%
+\section{Frisch-Waugh-Lovell Theorem}
+Consider a multivariate regression, where the model is 
+\[
+y= X_1\beta_1 + X_2\beta_2+e \ \ \tag{Long}
+\]
+where $X_1$ and $X_2$ each contains $k_1$ and $k_2$ regressors. We are interested in estimating $\beta_2$, or the effect of $X_2$ while holding $X_1$ fixed. One simple way of doing this is to control for $X_1$, obtain the $\beta$ estimates for both $X_1$ and $X_2$ (denoted as $\hat{\beta}$) and get $\hat{\beta}_2$ components. 
+\par
+Another way of doing this is to partial out $X_1$ from $y$ and $X_2$ by projecting both onto the space of $X_1$ and using the `residualized' (with respect to $X_1$) version of the two variables. Since this nets out the influence of $X_1$ from both variables, we are also holding $X_1$ fixed by doing this. To achieve this, I define a projection $P_1$ and a residual maker matrix $M_1$.
+\[
+P_1= X_1(X_1'X_1)^{-1} X_1', \ \  M_1 = I-X_1(X_1'X_1)^{-1} X_1'=I-P_1
+\]
+Then, multiply the long data generating process by premultiplying $M_1$
+\begin{align*}
+M_1y &= M_1X_1\beta_1 + M_1X_2\beta_2+ M_1 e\\
+&=M_1X_2\beta_2+ M_1 e\\
+\to\widetilde{y}&=\widetilde{X_2}\beta_2 + \widetilde{e} \ \ \tag{Short}\\
+\end{align*}
+Where $M_1X_1 = X_1 - X_1(X_1'X_1)^{-1} X_1'=0$. 
+
+From this setup, we can prove two features of the Frisch-Wald-Lovell theorem. 
+\begin{mdframed}[backgroundcolor=green!5] 
+\begin{theorem}[Frisch-Waugh-Lovell theorem] 
+From the long and short form regressions above, 
+\begin{itemize} 
+\item The OLS estimates of $\beta_2$ from the two regressions are identical
+\item The residuals from the OLS estimate of the two regressions are identical
+\end{itemize}
+\end{theorem}
+\end{mdframed}
+\par
+To proceed, it should be made clear that both projection and the residual maker matrix are idempotent and symmetric
+\begin{mdframed}[backgroundcolor=green!5] 
+\begin{property}[Properties of Projection Matrix $P_X=X(X'X)^{-1}X'$] 
+Note that
+\begin{itemize} 
+\item Symmetric: $P_X'=(X(X'X)^{-1}X')'=X(X'X)^{-1}X'=P_X$
+\item Idempotent: $P_X^2=X(X'X)^{-1}X'X(X'X)^{-1}X'=X(X'X)^{-1}X'=P_X$
+\end{itemize}
+\end{property}
+\end{mdframed}
+
+\begin{mdframed}[backgroundcolor=green!5] 
+\begin{property}[Properties of Residual Matrix $M_X=I-X(X'X)^{-1}X'$] 
+Note that
+\begin{itemize} 
+\item Symmetric: $M_X'=I'-(X(X'X)^{-1}X')'=I-X(X'X)^{-1}X'=I-P_X=M_X$
+\item Idempotent: $M_X^2=(I-P_X)(I-P_X)=I-P_X-P_X+P_X'P_X=I-P_X=M_X$
+\end{itemize}
+\end{property}
+\end{mdframed}
+Furthermore, we must show the following
+
+\begin{mdframed}[backgroundcolor=green!5] 
+\begin{property}[Projection and residual matrices of the subspace of $X$] 
+Let $X=[X_1 \ X_2]$ and $P,M$ be a projection and residual maker matrix for $X$. Then we can show
+\begin{itemize} 
+\item $P_1P=PP_1=P_1$
+\item $M_1M=MM_1=M$
+\end{itemize}
+\begin{proof}
+Rewrite  $PP_1=X(X'X)^{-1}X'X_1(X_1'X_1)^{-1}X_1'$. The part on $X(X'X)^{-1}X'X_1$ is a projection of $X_1$ onto space of $[X_1 \ X_2]$, a wider space in which $X_1$ is included. So we have $X(X'X)^{-1}X'X_1=X_1$. Thus, $PP_1=P_1$. \par
+As for $P_1P$, Note that $(PP_1)'=P_1'P'=P_1P$ by symmetry of projection matrix. So $P_1P=P_1'=P_1$.\par
+Once this is shown, we can easily work with $M_1M$ and $MM_1$ using the above facts and show that
+\[
+\begin{aligned}
+M_1M&=(I-P_1)(I-P)\\
+&=I-P-P_1+P_1P = I-P-P_1+P_1 = I-P=M\\
+MM_1&=(I-P)(I-P_1)\\
+&=I-P_1-P+PP_1 = I-P_1-P+P_1 = I-P=M\\
+\end{aligned}
+\]
+\end{proof}
+\end{property}
+\end{mdframed}
+
+Another useful property is to show that the OLS residual $\hat{e}$ can be written using $M$
+\begin{mdframed}[backgroundcolor=green!5] 
+\begin{property}[Residual of the OLS] 
+Let $\hat{e}$ be the OLS residual from the regression of $y$ onto $X$, whose original GDP is $y=X\beta+e$. Then we can write $\hat{e} = My = Me$
+\begin{proof}
+Rewrite $\hat{e}$ into the following and use the fact that $\hat{\beta}=(X'X)^{-1}X'y$ to get
+\begin{align*}
+\hat{e} &=y-X\hat{\beta}\\
+&=[I-X(X'X)^{-1}X']y = My\\
+&=M(X\beta+e)\\
+&=X\beta - X(X'X)^{-1}X'X\beta+Me=Me\\
+\end{align*}
+Thus $\hat{e} = My = Me$
+\end{proof}
+\end{property}
+\end{mdframed}
+\par
+Now we have what it takes to prove the theorem. Keep in mind that any vector $y$ can be expressed as the sum of its projection onto some space $X$ and the residual from that projection. So we have
+\[
+y=Py+My
+\]
+Note that $Py= X(X'X)^{-1}X'y = X\hat{\beta}$. We can split this into $X_1\hat{\beta}_1+X_2\hat{\beta}_2$. Then we can write
+\[
+y=X_1\hat{\beta}_1+X_2\hat{\beta}_2+My
+\]
+Then, we premultiply $X_2'M_1$ on both sides to get
+\[\begin{aligned}
+X_2'M_1y&=X_2'M_1X_1\hat{\beta}_1+X_2'M_1X_2\hat{\beta}_2+X_2'M_1My\\
+&=X_2'M_1X_2\hat{\beta}_2+X_2'My\\
+\end{aligned}\]
+We can further show that $X_2'My=0$, since
+\[
+X_2'My=X_2'y-X_2'Py=0
+\]
+where $X_2'P=X_2'$ since this is a transpose of a projection of $X_2$ onto a wider space that includes itself. Thus $PX_2 = X_2$ and take transpose to both sides.  
+\par
+Take all the conditions and we can derive that 
+\[
+X_2'M_1y=X_2'M_1X_2\hat{\beta}_2 \iff\hat{\beta}_2 =(X_2'M_1X_2)^{-1}(X_2'M_1y)
+\]
+\par
+Now we need to verify that $(X_2'M_1X_2)^{-1}(X_2'M_1y)$ is the expression for the OLS estimation on the short version of the data generating process. Apply OLS on $\widetilde{y}=\widetilde{X_2}\beta_2 + \widetilde{e}$ to get 
+\[
+\begin{aligned}
+\widehat{\widetilde{\beta}}_2 &= (\widetilde{X_2}'\widetilde{X_2})^{-1}(\widetilde{X_2}'\widetilde{y})\\
+&= (X_2'M_1'M_1X_2)^{-1}(X_2'M_1'M_1y)\\
+&= (X_2'M_1X_2)^{-1}(X_2'M_1y)\\
+\end{aligned}
+\]
+by symmetry and idempotency of $M_1$. Thus, the first part of the Frisch-Waugh-Lovell theorem is verified. 
+\par 
+Now we need to show the equivalence of the residuals. Start with $y=X_1\hat{\beta}_1+X_2\hat{\beta}_2+\hat{e}$ and premultiply $M_1$ to get
+\[
+M_1y = M_1 X_2\hat{\beta}_2 + M_1\hat{e} \to \widetilde{y} = \widetilde{X_2}\hat{\beta}_2 + M_1\hat{e}
+\]
+By the equivalence of the OLS estimates on $\beta_2$, $M_1\hat{e}$ is the residual of regressing $\widetilde{y}$ onto $\widetilde{X_2}$ using OLS, $\widehat{\widetilde{e}}$. We can further write
+\[
+\widehat{\widetilde{e}} = M_1\hat{e} = M_1Me = Me = \hat{e}
+\]
+using the fact that $M_1M=M$ we have shown above. Thus, the residuals are also equal.
+\par
+Key takeaway is that the long and short DGP derives $\hat{\beta}_2$ by fixing $X_1$. Long DGP does this by including $X_1$ as a control variable and deriving $\hat{\beta}_2$ using partial derivatives. The short DGP is doing the same thing, but by netting out the influence of $X_1$ from $y$ and $X_2$ by residualizing both variables after projecting them onto the space of $X_1$. If you think of it this way, it is natural that the OLS estimators and the residuals are identical. 
+%%%%%%%%%%%%%%%
+\end{document}
+
