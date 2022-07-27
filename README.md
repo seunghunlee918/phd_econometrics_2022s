@@ -1,6 +1,6 @@
 # Introduction to Econometrics 2 (Spring 2022)
 
-This repository contains the TA notes and recitation slides I have used for the 2021 Spring semester. It includes the TeX files for the lecture notes and recitation slides used in Spring 2022 semester. Please contact me (sl4436@columbia.edu) or send a pull request if you spot any errors.
+This repository contains the TA notes and recitation slides I have used for the 2022 Spring semester. It includes the TeX files for the lecture notes and recitation slides used in Spring 2022 semester. Please contact me (sl4436@columbia.edu) or send a pull request if you spot any errors.
 
 ### Book (to be released soon)
 This folder contains one TeX file that compiles all topics covered in Introduction to Econometrics 2 class in Columbia University. It combines the materials used in Spring 2020, and Spring 2022 semesters. 
